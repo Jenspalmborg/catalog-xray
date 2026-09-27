@@ -1,0 +1,140 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Catalog X-ray</title>
+<meta name="description" content="X-ray any online store: what to add to the range, which keywords each product is missing, and which searches disappoint. Built on BehaviorGPT.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,700;12..96,800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #fbfbfa; --surface: #fff; --line: rgba(22,22,40,.09); --ink: #17171f; --ink-2: #565a6b; --ink-3: #8d909e;
+    --accent: #2a78d6; --good: #1f8a4c;
+    --display: "Bricolage Grotesque", Inter, sans-serif; --sans: Inter, -apple-system, "Segoe UI", sans-serif;
+    --mono: ui-monospace, SFMono-Regular, Menlo, monospace;
+    color-scheme: light;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root { --bg: #141413; --surface: #1c1c1b; --line: rgba(255,255,255,.1); --ink: #f3f2ee; --ink-2: #c3c2b7; --ink-3: #8d8c84;
+            --accent: #3987e5; --good: #3fb26d; color-scheme: dark; }
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--ink); font: 16px/1.6 var(--sans); -webkit-font-smoothing: antialiased; }
+  a { color: var(--accent); }
+  .wrap { max-width: 1040px; margin: 0 auto; padding: 0 24px; }
+  .topbar { border-bottom: 1px solid var(--line); }
+  .topbar .wrap { display: flex; justify-content: space-between; align-items: center; height: 60px; }
+  .brand { display: flex; align-items: center; gap: 9px; font-family: var(--display); font-weight: 800; font-size: 18px; }
+  .logo { width: 26px; height: 26px; border-radius: 8px; background: var(--accent); display: grid; place-items: center; }
+  .logo svg { width: 15px; height: 15px; }
+  .nav { display: flex; gap: 22px; } .nav a { color: var(--ink-2); text-decoration: none; font-size: 14px; font-weight: 500; }
+  .nav a:hover { color: var(--ink); }
+
+  .hero { padding: 80px 0 40px; text-align: center; }
+  h1 { font-family: var(--display); font-weight: 800; font-size: clamp(38px, 6vw, 64px); letter-spacing: -.035em; line-height: 1.02; margin: 0 auto 18px; max-width: 16ch; }
+  .lede { color: var(--ink-2); font-size: 19px; max-width: 58ch; margin: 0 auto 30px; text-wrap: balance; }
+  .ctas { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+  .btn { display: inline-block; text-decoration: none; font-weight: 600; padding: 13px 24px; border-radius: 12px; }
+  .btn.primary { background: var(--accent); color: #fff; }
+  .btn.ghost { border: 1px solid var(--line); color: var(--ink); background: var(--surface); }
+
+  .shot { margin: 20px auto 0; max-width: 980px; border-radius: 16px; overflow: hidden; border: 1px solid var(--line);
+          box-shadow: 0 2px 4px rgba(22,22,40,.04), 0 30px 70px rgba(22,22,40,.12); background: var(--surface); }
+  .shot img { display: block; width: 100%; }
+
+  section { padding: 72px 0 8px; }
+  h2 { font-family: var(--display); font-weight: 800; font-size: clamp(26px, 3.5vw, 36px); letter-spacing: -.025em; margin: 0 0 10px; }
+  .sub { color: var(--ink-2); max-width: 62ch; margin: 0 0 28px; }
+  .grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; }
+  .card { background: var(--surface); border: 1px solid var(--line); border-radius: 16px; padding: 22px 24px; }
+  .card h3 { margin: 0 0 6px; font-size: 18px; }
+  .card p { margin: 0; color: var(--ink-2); font-size: 15px; }
+  .card .eg { margin-top: 14px; font-size: 14px; color: var(--ink); background: color-mix(in srgb, var(--ink) 4%, transparent); border-radius: 10px; padding: 10px 12px; }
+  .card .eg b { color: var(--accent); }
+
+  .routes { display: grid; gap: 10px; counter-reset: route; }
+  .route { display: grid; grid-template-columns: 34px 1fr auto; gap: 14px; align-items: center; background: var(--surface);
+           border: 1px solid var(--line); border-radius: 14px; padding: 14px 18px; }
+  .route::before { counter-increment: route; content: counter(route); width: 30px; height: 30px; border-radius: 50%; display: grid; place-items: center;
+                   background: color-mix(in srgb, var(--accent) 12%, transparent); color: var(--accent); font-weight: 700; font-size: 14px; }
+  .route b { display: block; } .route span { color: var(--ink-2); font-size: 14px; }
+  .route em { font-style: normal; font-size: 13px; font-weight: 600; color: var(--good); white-space: nowrap; }
+
+  pre { background: #17171f; color: #e8e8ec; border-radius: 14px; padding: 18px 20px; overflow-x: auto; font: 14px/1.7 var(--mono); margin: 0; }
+  pre .c { color: #8d909e; }
+  .note { color: var(--ink-3); font-size: 14px; margin-top: 14px; }
+  footer { padding: 72px 0 48px; color: var(--ink-3); font-size: 14px; display: flex; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
+  footer a { color: var(--ink-2); }
+  @media (max-width: 760px) {
+    .grid { grid-template-columns: 1fr; }
+    .route { grid-template-columns: 34px 1fr; } .route em { grid-column: 2; }
+    .nav { gap: 14px; } .hero { padding: 48px 0 24px; } .lede { font-size: 17px; }
+    .wrap { padding: 0 16px; }
+  }
+</style>
+</head>
+<body>
+<div class="topbar"><div class="wrap">
+  <span class="brand"><span class="logo"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round"><circle cx="11" cy="11" r="6"/><path d="m20 20-4.2-4.2M8.5 11h5M11 8.5v5"/></svg></span>Catalog X-ray</span>
+  <nav class="nav"><a href="example/">Example report</a><a href="#run">Run it</a><a href="https://github.com/Jenspalmborg/catalog-xray">GitHub</a></nav>
+</div></div>
+
+<main class="wrap">
+  <div class="hero">
+    <h1>See what your store is missing.</h1>
+    <p class="lede">Paste a store’s address or upload its product export. Catalog X-ray compares the range with what shoppers actually buy and tells you what to add, which keywords each product lacks, and which searches disappoint.</p>
+    <div class="ctas"><a class="btn primary" href="example/">See an example report</a><a class="btn ghost" href="#run">Run it on your store</a></div>
+    <div class="shot"><a href="example/"><img src="img/report.png" alt="An example report: assortment balance, what to add, keywords"></a></div>
+  </div>
+
+  <section>
+    <h2>What the report tells you</h2>
+    <p class="sub">Each finding comes from <a href="https://github.com/Unbox-AI/behaviorgpt">BehaviorGPT</a>, a model trained on long sequences of what shoppers view, add to cart and buy.</p>
+    <div class="grid">
+      <div class="card"><h3>What to add</h3><p>Kinds of products shoppers look at alongside or right after yours, that you don’t carry, with the styles they pick and a market price range.</p>
+        <div class="eg"><b>Jeans</b> · slim fit, ripped, skinny, stretch · $23–44</div></div>
+      <div class="card"><h3>Keywords to add</h3><p>Words shoppers use for products like yours that don’t find your product in your own search today. Ready to paste into tags.</p>
+        <div class="eg">8-person camping tent: <b>+ cabin tent</b> <b>+ instant</b></div></div>
+      <div class="card"><h3>Assortment balance</h3><p>Your share of the range per product area, next to that area’s share of what shoppers buy in your part of the market.</p>
+        <div class="eg">Shoes: 23% of the range, <b>6%</b> of demand</div></div>
+      <div class="card"><h3>Search QA</h3><p>Your key searches, run against your own catalog. Weak ones return the wrong kind of product, or nothing that matches.</p>
+        <div class="eg">“performance”: <b>1 of top 5</b> results mention it</div></div>
+    </div>
+  </section>
+
+  <section>
+    <h2>Gentle by design</h2>
+    <p class="sub">To avoid loading a store or getting blocked, Catalog X-ray reads products the lightest way available and only falls back when it has to. Every request follows robots.txt and is clearly identified.</p>
+    <div class="routes">
+      <div class="route"><div><b>Upload a product export</b><span>Shopify, WooCommerce or any spreadsheet</span></div><em>no requests</em></div>
+      <div class="route"><div><b>The store’s own product API</b><span>Shopify and WooCommerce publish their catalog in pages of 100–250</span></div><em>a few requests</em></div>
+      <div class="route"><div><b>A product feed</b><span>Google Shopping or Facebook catalog files, made for machines</span></div><em>one request</em></div>
+      <div class="route"><div><b>Common Crawl</b><span>The public web archive’s copies of the store’s pages</span></div><em>no requests to the store</em></div>
+      <div class="route"><div><b>A sample of product pages</b><span>Only if nothing else works, capped at 150 pages, one per second</span></div><em>last resort</em></div>
+    </div>
+  </section>
+
+  <section id="run">
+    <h2>Run it on your store</h2>
+    <p class="sub">It runs on your own machine with your own BehaviorGPT key (get one at <a href="https://unboxai.com/behaviorgpt">unboxai.com/behaviorgpt</a>). Needs Python 3.11+ and <a href="https://github.com/astral-sh/uv">uv</a>.</p>
+<pre><span class="c"># get it</span>
+git clone https://github.com/Jenspalmborg/catalog-xray.git
+cd catalog-xray
+uv sync
+cp .env.example .env            <span class="c"># paste your key as UNBOXAI_API_KEY</span>
+
+<span class="c"># open the app in your browser: paste a URL or upload an export</span>
+uv run xray-web
+
+<span class="c"># or from the command line</span>
+uv run xray https://www.some-store.com
+uv run xray --file products.csv --name "My store"</pre>
+    <p class="note">A first scan takes a few minutes, mostly for uploading the catalog to BehaviorGPT. Reports are a single HTML page plus CSV exports. Your key holds one catalog at a time, so each new store replaces the previous upload.</p>
+  </section>
+</main>
+
+<footer class="wrap"><span>Catalog X-ray · MIT licensed</span><span>Built on <a href="https://github.com/Unbox-AI/behaviorgpt">BehaviorGPT</a> by UnboxAI</span></footer>
+</body>
+</html>

@@ -1,0 +1,226 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Catalog X-ray</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,700;12..96,800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #fbfbfa; --surface: #fff; --line: rgba(22,22,40,.09); --ink: #17171f; --ink-2: #565a6b; --ink-3: #8d909e;
+    --accent: #2a78d6; --good: #1f8a4c; --bad: #c9362b;
+    --display: "Bricolage Grotesque", Inter, sans-serif; --sans: Inter, -apple-system, "Segoe UI", sans-serif;
+    color-scheme: light;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root { --bg: #141413; --surface: #1c1c1b; --line: rgba(255,255,255,.1); --ink: #f3f2ee; --ink-2: #c3c2b7; --ink-3: #8d8c84;
+            --accent: #3987e5; --good: #3fb26d; --bad: #e5594d; color-scheme: dark; }
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--ink); font: 15px/1.55 var(--sans); -webkit-font-smoothing: antialiased; }
+  .wrap { max-width: 860px; margin: 0 auto; padding: 0 24px; }
+  .bar { border-bottom: 1px solid var(--line); }
+  .bar .wrap { display: flex; justify-content: space-between; align-items: center; height: 56px; }
+  .brand { display: flex; align-items: center; gap: 9px; font-family: var(--display); font-weight: 800; font-size: 17px; }
+  .logo { width: 24px; height: 24px; border-radius: 7px; background: var(--accent); display: grid; place-items: center; }
+  .logo svg { width: 14px; height: 14px; }
+  .nav { color: var(--ink-2); text-decoration: none; font-size: 14px; font-weight: 500; }
+  .nav:hover { color: var(--ink); }
+  footer { color: var(--ink-3); font-size: 13px; padding: 0 0 40px; }
+  footer a { color: var(--ink-2); }
+
+  .hero { padding: 72px 0 20px; text-align: center; }
+  h1 { font-family: var(--display); font-weight: 800; font-size: clamp(34px, 5.5vw, 54px); letter-spacing: -.035em; line-height: 1.04; margin: 0 0 14px; }
+  .lede { color: var(--ink-2); font-size: 17px; max-width: 56ch; margin: 0 auto; text-wrap: balance; }
+
+  form { display: flex; gap: 8px; background: var(--surface); border: 1px solid var(--line); border-radius: 16px; padding: 8px;
+         box-shadow: 0 1px 2px rgba(22,22,40,.05), 0 14px 40px rgba(22,22,40,.08); margin-top: 14px; }
+  .modes { display: inline-flex; gap: 4px; margin-top: 30px; padding: 4px; background: color-mix(in srgb, var(--ink) 5%, transparent); border-radius: 12px; }
+  .mode { border: 0; background: none; color: var(--ink-2); font-weight: 500; font-size: 14px; padding: 7px 14px; border-radius: 9px; cursor: pointer; }
+  .mode.on { background: var(--surface); color: var(--ink); box-shadow: 0 1px 3px rgba(22,22,40,.1); }
+  .file { flex: 1; display: flex; align-items: center; padding: 12px 14px; cursor: pointer; color: var(--ink-2); min-width: 0; }
+  .file input { display: none; }
+  .file span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  #fname { flex: 0 0 180px; border-left: 1px solid var(--line); }
+  form input, form select { font: inherit; color: var(--ink); background: none; border: 0; outline: none; }
+  form input { flex: 1; padding: 12px 14px; font-size: 16px; min-width: 0; }
+  form select { padding: 0 10px; color: var(--ink-2); border-left: 1px solid var(--line); cursor: pointer; }
+  button { font: inherit; }
+  .go { border: 0; background: var(--accent); color: #fff; font-weight: 600; font-size: 15px; padding: 0 26px; border-radius: 11px; cursor: pointer; }
+  .go:hover { filter: brightness(1.07); }
+  .go:disabled { opacity: .5; cursor: wait; }
+  .hint { text-align: center; color: var(--ink-3); font-size: 13px; margin-top: 12px; }
+  .hint a { color: var(--ink-2); cursor: pointer; text-decoration: underline; text-underline-offset: 3px; }
+
+  /* Progress */
+  .progress { margin-top: 28px; background: var(--surface); border: 1px solid var(--line); border-radius: 16px; padding: 22px 24px; }
+  .ptop { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; margin-bottom: 18px; }
+  .ptop b { font-family: var(--display); font-size: 20px; }
+  .ptop span { color: var(--ink-3); font-size: 13px; font-variant-numeric: tabular-nums; }
+  .steps { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-bottom: 18px; }
+  .st { display: flex; flex-direction: column; gap: 8px; font-size: 13px; color: var(--ink-3); font-weight: 500; }
+  .st i { height: 5px; border-radius: 3px; background: var(--line); position: relative; overflow: hidden; }
+  .st.done { color: var(--ink-2); } .st.done i { background: var(--good); }
+  .st.active { color: var(--ink); } .st.active i { background: color-mix(in srgb, var(--accent) 25%, transparent); }
+  .st.active i::after { content: ""; position: absolute; inset: 0; width: 40%; background: var(--accent); border-radius: 3px; animation: slide 1.2s ease-in-out infinite; }
+  @keyframes slide { from { transform: translateX(-100%); } to { transform: translateX(250%); } }
+  .log { font: 12.5px/1.6 ui-monospace, SFMono-Regular, Menlo, monospace; color: var(--ink-2); background: color-mix(in srgb, var(--ink) 4%, transparent);
+         border-radius: 10px; padding: 10px 14px; max-height: 190px; overflow: auto; white-space: pre-wrap; }
+  .log .s { color: var(--ink); font-weight: 600; }
+  .done-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-top: 16px; }
+  .open { text-decoration: none; background: var(--accent); color: #fff; font-weight: 600; padding: 11px 22px; border-radius: 11px; }
+  .error { margin-top: 14px; color: var(--bad); font-weight: 500; }
+
+  /* Earlier scans */
+  h2 { font-size: 12px; font-weight: 600; letter-spacing: .1em; text-transform: uppercase; color: var(--ink-3); margin: 64px 0 10px; }
+  .reports { display: grid; gap: 8px; padding-bottom: 48px; }
+  .rep { display: grid; grid-template-columns: 1fr auto; gap: 4px 16px; align-items: center; background: var(--surface); border: 1px solid var(--line);
+         border-radius: 14px; padding: 14px 18px; text-decoration: none; color: inherit; transition: border-color .15s; }
+  .rep:hover { border-color: var(--accent); }
+  .rep b { font-size: 16px; } .rep small { color: var(--ink-3); font-size: 13px; }
+  .rep .nums { grid-row: span 2; color: var(--ink-2); font-size: 13px; text-align: right; font-variant-numeric: tabular-nums; }
+  .empty { color: var(--ink-3); }
+  [hidden] { display: none !important; }
+  @media (max-width: 620px) {
+    .wrap { padding: 0 16px; }
+    form { flex-wrap: wrap; } form input { flex-basis: 100%; }
+    form select { border-left: 0; padding: 10px; } .go { flex: 1; padding: 12px; }
+    .steps { grid-template-columns: 1fr 1fr; }
+  }
+</style>
+</head>
+<body>
+<div class="bar"><div class="wrap">
+  <span class="brand"><span class="logo"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round"><circle cx="11" cy="11" r="6"/><path d="m20 20-4.2-4.2M8.5 11h5M11 8.5v5"/></svg></span>Catalog X-ray</span>
+  <a class="nav" href="https://github.com/Jenspalmborg/catalog-xray" target="_blank" rel="noopener">GitHub</a>
+</div></div>
+<div class="wrap">
+
+  <section class="hero">
+    <h1>X-ray any online store.</h1>
+    <p class="lede">What to add, which keywords are missing, and which searches disappoint.</p>
+    <div class="modes" role="tablist">
+      <button type="button" class="mode on" data-mode="url" role="tab">Scan a website</button>
+      <button type="button" class="mode" data-mode="file" role="tab">Upload an export</button>
+    </div>
+    <form id="form" autocomplete="off">
+      <input id="url" type="text" inputmode="url" placeholder="https://www.some-store.com">
+      <select id="max" title="How many products to read">
+        <option value="500">500 products</option>
+        <option value="1000" selected>1,000 products</option>
+        <option value="5000">5,000 products</option>
+        <option value="20000">All (up to 20,000)</option>
+      </select>
+      <button class="go" id="go" type="submit">Scan</button>
+    </form>
+    <form id="fileform" autocomplete="off" hidden>
+      <label class="file"><input id="file" type="file" accept=".csv,.tsv,.txt"><span id="file-label">Choose a CSV export…</span></label>
+      <input id="fname" type="text" placeholder="Store name">
+      <button class="go" id="go2" type="submit">Analyse</button>
+    </form>
+    <p class="hint" id="hint-file" hidden>Shopify, WooCommerce and most spreadsheet exports work. Nothing is fetched from the store.</p>
+    <p class="hint" id="hint-url">Reads the gentlest way first: the store’s own feeds, then a public web archive, and only then a small sample of pages. A first scan takes a few minutes.</p>
+  </section>
+
+  <section class="progress" id="progress" hidden>
+    <div class="ptop"><b id="p-domain"></b><span id="p-time"></span></div>
+    <div class="steps" id="steps"></div>
+    <div class="log" id="log"></div>
+    <div class="error" id="error" hidden></div>
+    <div class="done-row" id="done" hidden><span id="done-text"></span><a class="open" id="open" href="#">Open the report →</a></div>
+  </section>
+
+  <h2>Earlier scans</h2>
+  <div class="reports" id="reports"><p class="empty">None yet.</p></div>
+  <footer>Runs on your machine with your own <a href="https://unboxai.com/behaviorgpt" target="_blank" rel="noopener">BehaviorGPT</a> key.</footer>
+</div>
+
+<script>
+const $ = id => document.getElementById(id);
+const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+let timer = null;
+
+async function loadReports() {
+  const list = await fetch("/api/reports").then(r => r.json()).catch(() => []);
+  $("reports").innerHTML = list.length ? list.map(r => `
+    <a class="rep" href="${esc(r.url)}">
+      <b>${esc(r.domain)}</b>
+      <span class="nums">${r.products ? `${r.products.toLocaleString()} products · ${r.gaps} gaps · ${r.keywords} keywords` : ""}</span>
+      <small>${new Date(r.updated * 1000).toLocaleString([], { dateStyle: "medium", timeStyle: "short" })}</small>
+    </a>`).join("") : '<p class="empty">None yet.</p>';
+}
+
+function render(job) {
+  $("progress").hidden = false;
+  $("p-domain").textContent = job.domain;
+  const secs = Math.round(Date.now() / 1000 - job.started);
+  $("p-time").textContent = job.status === "running" ? `${Math.floor(secs / 60)}:${String(secs % 60).padStart(2, "0")}` : "";
+  $("steps").innerHTML = job.steps.map((s, i) => {
+    const cls = job.status === "done" || i < job.step ? "done" : i === job.step && job.status === "running" ? "active" : "";
+    return `<div class="st ${cls}"><i></i>${esc(s)}</div>`;
+  }).join("");
+  const log = $("log"), atBottom = log.scrollHeight - log.scrollTop - log.clientHeight < 30;
+  log.innerHTML = job.log.map(l => l.step ? `<span class="s">${esc(l.msg)}</span>` : esc(l.msg)).join("\n");
+  if (atBottom) log.scrollTop = log.scrollHeight;
+  $("error").hidden = job.status !== "error"; $("error").textContent = job.error || "";
+  $("done").hidden = job.status !== "done";
+  if (job.status === "done") { $("open").href = job.report; $("done-text").textContent = "Your report is ready."; }
+  $("go").disabled = job.status === "running";
+}
+
+async function follow(id) {
+  clearTimeout(timer);
+  try {
+    const job = await fetch(`/api/scan/${id}`).then(r => { if (!r.ok) throw r; return r.json(); });
+    render(job);
+    if (job.status === "running") timer = setTimeout(() => follow(id), 1200);
+    else { try { localStorage.removeItem("xray-job"); } catch {} loadReports(); }
+  } catch { try { localStorage.removeItem("xray-job"); } catch {} $("go").disabled = false; }
+}
+
+$("form").addEventListener("submit", async e => {
+  e.preventDefault();
+  const url = $("url").value.trim();
+  if (!url) return;
+  $("go").disabled = true;
+  const res = await fetch("/api/scan", { method: "POST", headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ url, max_products: +$("max").value }) });
+  const data = await res.json();
+  if (!res.ok) { $("progress").hidden = false; $("error").hidden = false; $("error").textContent = data.detail || "Couldn’t start the scan."; $("go").disabled = false; return; }
+  try { localStorage.setItem("xray-job", data.id); } catch {}
+  follow(data.id);
+});
+
+document.querySelectorAll(".mode").forEach(b => b.onclick = () => {
+  const file = b.dataset.mode === "file";
+  document.querySelectorAll(".mode").forEach(x => x.classList.toggle("on", x === b));
+  $("form").hidden = file; $("fileform").hidden = !file; $("hint-url").hidden = file; $("hint-file").hidden = !file;
+});
+$("file").onchange = () => {
+  const f = $("file").files[0];
+  $("file-label").textContent = f ? f.name : "Choose a CSV export…";
+  if (f && !$("fname").value) $("fname").value = f.name.replace(/\.[^.]+$/, "");
+};
+$("fileform").addEventListener("submit", async e => {
+  e.preventDefault();
+  const f = $("file").files[0];
+  if (!f) { $("file-label").textContent = "Pick a file first"; return; }
+  $("go2").disabled = true;
+  const body = new FormData(); body.append("file", f); body.append("name", $("fname").value.trim());
+  const res = await fetch("/api/upload", { method: "POST", body });
+  const data = await res.json();
+  $("go2").disabled = false;
+  if (!res.ok) { $("progress").hidden = false; $("error").hidden = false; $("error").textContent = data.detail || "Couldn’t start."; return; }
+  try { localStorage.setItem("xray-job", data.id); } catch {}
+  follow(data.id);
+});
+
+
+loadReports();
+// A scan keeps running if you reload; pick it up again.
+try { const id = localStorage.getItem("xray-job"); if (id) follow(id); } catch {}
+</script>
+</body>
+</html>

@@ -1,0 +1,1365 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Catalog X-ray: example-outdoor-store</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,700;12..96,800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #fbfbfa; --surface: #fff; --line: rgba(22,22,40,.09); --ink: #17171f; --ink-2: #565a6b; --ink-3: #8d909e;
+    --you: #2a78d6; --mkt: #eb6834; --good: #1f8a4c; --bad: #c9362b; --warn: #9a6a00;
+    --display: "Bricolage Grotesque", Inter, sans-serif; --sans: Inter, -apple-system, "Segoe UI", sans-serif;
+    color-scheme: light;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root { --bg: #141413; --surface: #1c1c1b; --line: rgba(255,255,255,.1); --ink: #f3f2ee; --ink-2: #c3c2b7; --ink-3: #8d8c84;
+            --you: #3987e5; --mkt: #d95926; --good: #3fb26d; --bad: #e5594d; --warn: #d9a520; color-scheme: dark; }
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--ink); font: 15px/1.55 var(--sans); -webkit-font-smoothing: antialiased; }
+  .wrap { max-width: 1100px; margin: 0 auto; padding: 0 24px; }
+  .topbar { border-bottom: 1px solid var(--line); }
+  .topbar .wrap { display: flex; justify-content: space-between; align-items: center; height: 56px; }
+  .brand { display: flex; align-items: center; gap: 9px; font-family: var(--display); font-weight: 800; font-size: 17px; }
+  .logo { width: 24px; height: 24px; border-radius: 7px; background: var(--you); display: grid; place-items: center; }
+  .logo svg { width: 14px; height: 14px; }
+  #back { color: var(--ink-2); text-decoration: none; font-size: 14px; font-weight: 500; }
+  #back:hover { color: var(--ink); }
+  header { padding: 36px 0 8px; }
+  .kicker { font-size: 12px; font-weight: 600; letter-spacing: .1em; text-transform: uppercase; color: var(--ink-3); }
+  h1 { font-family: var(--display); font-weight: 800; font-size: clamp(32px, 5vw, 48px); letter-spacing: -.03em; line-height: 1.05; margin: 6px 0 10px; }
+  .lede { color: var(--ink-2); max-width: 70ch; margin: 0; }
+  .headline { margin: 20px 0 0; padding: 14px 18px; border-left: 4px solid var(--you); background: var(--surface); border-radius: 10px; }
+  .stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin: 24px 0 8px; }
+  .stat { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 16px 18px; }
+  .stat b { display: block; font-family: var(--display); font-size: 34px; font-weight: 800; letter-spacing: -.02em; line-height: 1.1; }
+  .stat span { color: var(--ink-2); font-size: 13.5px; }
+  nav { position: sticky; top: 0; background: color-mix(in srgb, var(--bg) 90%, transparent); backdrop-filter: blur(8px); z-index: 5;
+        border-bottom: 1px solid var(--line); margin-top: 24px; }
+  nav .wrap { display: flex; gap: 22px; overflow-x: auto; }
+  nav a { color: var(--ink-2); text-decoration: none; font-weight: 500; font-size: 14px; padding: 12px 0; white-space: nowrap; }
+  nav a:hover { color: var(--ink); }
+  section.block { padding: 40px 0 8px; }
+  h2 { font-family: var(--display); font-weight: 800; font-size: 28px; letter-spacing: -.02em; margin: 0 0 6px; }
+  .sub { color: var(--ink-2); margin: 0 0 20px; max-width: 72ch; }
+  .card { background: var(--surface); border: 1px solid var(--line); border-radius: 16px; padding: 20px 22px; }
+  .dl { display: inline-flex; gap: 6px; align-items: center; font-size: 13px; font-weight: 600; color: var(--you); text-decoration: none; margin-top: 12px; }
+
+  /* Balance chart */
+  .legend { display: flex; gap: 18px; font-size: 13px; color: var(--ink-2); margin-bottom: 14px; }
+  .legend i { display: inline-block; width: 10px; height: 10px; border-radius: 3px; margin-right: 6px; vertical-align: -1px; }
+  .brow { display: grid; grid-template-columns: 240px 1fr; gap: 16px; align-items: center; padding: 8px 0; border-top: 1px solid var(--line); }
+  .brow:first-of-type { border-top: 0; }
+  .bl { font-weight: 500; display: flex; flex-direction: column; gap: 3px; align-items: flex-start; }
+  .bars { display: grid; grid-template-columns: 1fr 44px; row-gap: 2px; align-items: center; }
+  .bar { height: 12px; border-radius: 0 4px 4px 0; min-width: 2px; cursor: default; }
+  .bar.you { background: var(--you); } .bar.mkt { background: var(--mkt); }
+  .bar:hover { filter: brightness(1.1); }
+  .bv { font-size: 12px; color: var(--ink-2); font-variant-numeric: tabular-nums; padding-left: 8px; }
+  .flag { font-size: 11px; font-weight: 600; padding: 1px 8px; border-radius: 999px; }
+  .flag::before { margin-right: 4px; }
+  .flag.under { color: var(--bad); background: color-mix(in srgb, var(--bad) 12%, transparent); } .flag.under::before { content: "▲"; font-size: 8px; }
+  .flag.over { color: var(--warn); background: color-mix(in srgb, var(--warn) 14%, transparent); } .flag.over::before { content: "●"; font-size: 8px; }
+  .flag.ok { color: var(--good); background: color-mix(in srgb, var(--good) 12%, transparent); } .flag.ok::before { content: "✓"; }
+  details.tbl { margin-top: 12px; font-size: 13px; } details.tbl summary { cursor: pointer; color: var(--ink-2); }
+  details.tbl table, table.kw, table.qa { width: 100%; border-collapse: collapse; }
+  details.tbl td, details.tbl th { padding: 6px 8px; border-bottom: 1px solid var(--line); text-align: left; }
+  #tip { position: fixed; pointer-events: none; background: var(--ink); color: var(--bg); font-size: 12.5px; padding: 6px 10px; border-radius: 8px; opacity: 0; transition: opacity .1s; z-index: 20; }
+
+  /* Gaps */
+  table.gaps { width: 100%; border-collapse: collapse; }
+  table.gaps td, table.gaps th { padding: 12px 10px; border-bottom: 1px solid var(--line); text-align: left; vertical-align: top; font-size: 14px; }
+  table.gaps th { font-size: 11px; letter-spacing: .08em; text-transform: uppercase; color: var(--ink-3); font-weight: 600; }
+  table.gaps tr:last-child td { border-bottom: 0; }
+  .gk { font-weight: 600; font-size: 15px !important; white-space: nowrap; }
+  .gp { white-space: nowrap; font-variant-numeric: tabular-nums; }
+  .gw { color: var(--ink-2); } .gw small { display: block; color: var(--ink-3); font-size: 12px; margin-top: 2px; }
+
+  /* Keywords */
+  .search { width: 100%; max-width: 360px; font: inherit; padding: 9px 12px; border-radius: 10px; border: 1px solid var(--line); background: var(--surface); color: var(--ink); margin-bottom: 12px; }
+  table.kw td, table.kw th, table.qa td, table.qa th { padding: 10px 10px; border-bottom: 1px solid var(--line); text-align: left; vertical-align: top; font-size: 14px; }
+  table.kw th, table.qa th { font-size: 11px; letter-spacing: .08em; text-transform: uppercase; color: var(--ink-3); font-weight: 600; }
+  .kp { display: flex; gap: 10px; align-items: flex-start; min-width: 240px; }
+  .kp img { width: 44px; height: 44px; object-fit: contain; background: #fff; border-radius: 8px; border: 1px solid var(--line); flex: none; }
+  .kp a { color: var(--ink); font-weight: 600; text-decoration: none; } .kp a:hover { text-decoration: underline; }
+  .kp small { display: block; color: var(--ink-3); font-size: 12px; }
+  .tags { color: var(--ink-3); font-size: 12.5px !important; max-width: 220px; }
+  .chip { display: inline-block; font-size: 12.5px; padding: 2px 9px; border-radius: 999px; margin: 0 4px 4px 0; }
+  .chip.add { background: color-mix(in srgb, var(--you) 12%, transparent); color: var(--you); font-weight: 600; }
+  .chip.ok { background: color-mix(in srgb, var(--good) 10%, transparent); color: var(--good); }
+  .none { color: var(--ink-3); font-size: 13px; }
+  .scroll { overflow-x: auto; }
+
+  /* QA */
+  .qhits { display: flex; gap: 8px; flex-wrap: wrap; }
+  .qhit { display: inline-flex; gap: 6px; align-items: center; font-size: 12.5px; color: var(--ink-2); max-width: 240px; }
+  .qhit img { width: 30px; height: 30px; object-fit: contain; background: #fff; border-radius: 6px; border: 1px solid var(--line); }
+  table.qa small { color: var(--ink-3); font-weight: 400; margin-left: 4px; }
+
+  footer { padding: 40px 0 60px; color: var(--ink-3); font-size: 13px; }
+  .method { color: var(--ink-2); font-size: 14px; }
+  .method li { margin-bottom: 6px; }
+  .empty { color: var(--ink-2); }
+  @media (max-width: 760px) {
+    .stats { grid-template-columns: 1fr 1fr; }
+    .brow { grid-template-columns: 1fr; gap: 6px; }
+    .wrap { padding: 0 16px; }
+  }
+</style>
+</head>
+<body>
+<div class="topbar"><div class="wrap">
+  <span class="brand"><span class="logo"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round"><circle cx="11" cy="11" r="6"/><path d="m20 20-4.2-4.2M8.5 11h5M11 8.5v5"/></svg></span>Catalog X-ray</span>
+  <a id="back" href="/" hidden>← Scan another store</a>
+</div></div>
+<header class="wrap">
+  <div class="kicker">Report · 2026-09-27</div>
+  <h1>Example Outdoor Store</h1>
+  <p class="lede">219 products (219 models once colour and size variants are grouped), read from an uploaded product export (no requests to the store), and compared with 547 similar products BehaviorGPT knows shoppers buy.</p>
+  <p class="headline">Biggest opportunity: <b>hat</b>. Shoppers of your Speedo Unisex Plain Moulded Silicone Swimming… go for 13 popular hat in the market, and you don’t carry any.</p>
+  <div class="stats">
+    <div class="stat"><b>3</b><span>kinds of products shoppers around your range want that you don’t carry</span></div>
+    <div class="stat"><b>104</b><span>keywords to add, across 58 products</span></div>
+    <div class="stat"><b>1</b><span>of 25 key searches return weak results</span></div>
+    <div class="stat"><b>219</b><span>product models analysed</span></div>
+  </div>
+</header>
+
+<nav><div class="wrap"><a href="#assortment">Assortment balance</a><a href="#gaps">What to add</a><a href="#keywords">Keywords</a><a href="#search">Search QA</a><a href="#method">How it works</a></div></nav>
+
+<main class="wrap">
+  <section class="block" id="assortment">
+    <h2>Assortment balance</h2>
+    <p class="sub">Each of your products gets the product area BehaviorGPT assigns to its closest market equivalent. Blue is your share of models in that area; orange is the area’s share of what shoppers buy in your part of the market.</p>
+    <div class="card">
+      <div class="legend"><span><i style="background:var(--you)"></i>Your catalog (share of models)</span><span><i style="background:var(--mkt)"></i>Market demand (share of sales)</span></div>
+      <div class="brow">
+  <div class="bl">Clothes<span class="flag under">Under-stocked</span></div>
+  <div class="bars">
+    <div class="bar you" style="width:35.7%" data-tip="Your catalog: 23% of models (51)"></div><span class="bv">23%</span>
+    <div class="bar mkt" style="width:100.0%" data-tip="Market demand: 65% of sales"></div><span class="bv">65%</span>
+  </div>
+</div>
+<div class="brow">
+  <div class="bl">Shoes<span class="flag over">Over-weighted</span></div>
+  <div class="bars">
+    <div class="bar you" style="width:35.0%" data-tip="Your catalog: 23% of models (50)"></div><span class="bv">23%</span>
+    <div class="bar mkt" style="width:8.6%" data-tip="Market demand: 6% of sales"></div><span class="bv">6%</span>
+  </div>
+</div>
+<div class="brow">
+  <div class="bl">Socks<span class="flag ok">Balanced</span></div>
+  <div class="bars">
+    <div class="bar you" style="width:19.6%" data-tip="Your catalog: 13% of models (28)"></div><span class="bv">13%</span>
+    <div class="bar mkt" style="width:23.8%" data-tip="Market demand: 16% of sales"></div><span class="bv">16%</span>
+  </div>
+</div>
+<div class="brow">
+  <div class="bl">Camping equipment<span class="flag ok">Balanced</span></div>
+  <div class="bars">
+    <div class="bar you" style="width:28.0%" data-tip="Your catalog: 18% of models (40)"></div><span class="bv">18%</span>
+    <div class="bar mkt" style="width:0.0%" data-tip="Market demand: 0% of sales"></div><span class="bv">0%</span>
+  </div>
+</div>
+<div class="brow">
+  <div class="bl">Bags<span class="flag ok">Balanced</span></div>
+  <div class="bars">
+    <div class="bar you" style="width:9.1%" data-tip="Your catalog: 6% of models (13)"></div><span class="bv">6%</span>
+    <div class="bar mkt" style="width:13.5%" data-tip="Market demand: 9% of sales"></div><span class="bv">9%</span>
+  </div>
+</div>
+<div class="brow">
+  <div class="bl">Camping gear<span class="flag over">Over-weighted</span></div>
+  <div class="bars">
+    <div class="bar you" style="width:12.6%" data-tip="Your catalog: 8% of models (18)"></div><span class="bv">8%</span>
+    <div class="bar mkt" style="width:1.3%" data-tip="Market demand: <1% of sales"></div><span class="bv"><1%</span>
+  </div>
+</div>
+<div class="brow">
+  <div class="bl">Drinkware<span class="flag ok">Balanced</span></div>
+  <div class="bars">
+    <div class="bar you" style="width:12.6%" data-tip="Your catalog: 8% of models (18)"></div><span class="bv">8%</span>
+    <div class="bar mkt" style="width:0.0%" data-tip="Market demand: 0% of sales"></div><span class="bv">0%</span>
+  </div>
+</div><details class="tbl"><summary>Show as table</summary><table>
+<tr><th>Area</th><th>Your models</th><th>Your share</th><th>Market demand</th></tr><tr><td>clothes</td><td>51</td><td>23%</td><td>65%</td></tr><tr><td>shoes</td><td>50</td><td>23%</td><td>6%</td></tr><tr><td>socks</td><td>28</td><td>13%</td><td>16%</td></tr><tr><td>camping equipment</td><td>40</td><td>18%</td><td>0%</td></tr><tr><td>bags</td><td>13</td><td>6%</td><td>9%</td></tr><tr><td>camping gear</td><td>18</td><td>8%</td><td><1%</td></tr><tr><td>drinkware</td><td>18</td><td>8%</td><td>0%</td></tr></table></details>
+    </div>
+  </section>
+
+  <section class="block" id="gaps">
+    <h2>What to add</h2>
+    <p class="sub">Kinds of products that shoppers look at alongside, or right after, products like yours, which your catalog doesn’t carry. Ranked by how popular they are. Types come from the names of popular market products of that kind; prices are the typical US market range.</p>
+    <div class="card scroll"><table class="gaps"><tr><th>Add</th><th>Types shoppers pick</th><th>Market price</th><th>Why</th></tr><tr><td class='gk'>Hat</td><td>—</td><td class='gp'>$24–39</td><td class='gw'>Shoppers of your <b>Speedo Unisex Plain Moulded Silicone Swimming…</b> also browse these<small>13 popular products in the market</small></td></tr><tr><td class='gk'>Jeans</td><td>slim fit, ripped, skinny, stretch</td><td class='gp'>$23–44</td><td class='gw'>Shoppers of your <b>Tanming Women&#x27;s Faux Leather Moto Biker…, Amazon Essentials Men&#x27;s Regular-Fit Short-Sleeve Crewneck…</b> also browse these<small>2 popular products in the market</small></td></tr><tr><td class='gk'>Underwear</td><td>seamless, stretch</td><td class='gp'>$9–26</td><td class='gw'>Shoppers of your <b>Amazon Essentials Men&#x27;s Regular-Fit Short-Sleeve Crewneck…, Pro Club Men&#x27;s 6-Pack Heavyweight Cotton…</b> look at these next<small>1 popular product in the market</small></td></tr></table></div>
+    <a class="dl" href="assortment_gaps.csv" download>Download all gaps as CSV ↓</a>
+  </section>
+
+  <section class="block" id="keywords">
+    <h2>Keywords to add</h2>
+    <p class="sub">Words shoppers use for products like yours that don’t find your product in your own catalog today. Add them to the product’s tags or title. Hover a suggestion to see why. Words that already find it are shown in green.</p>
+    <input class="search" id="kwq" type="search" placeholder="Filter products or keywords…">
+    <div class="card scroll"><table class="kw" id="kwt">
+      <tr><th>Product</th><th>Current tags</th><th>Add these</th><th>Already found by</th></tr>
+      <tr data-q="nike everyday plus cushion crew socks 3-pair pack ">
+  <td class="kp"><img src="https://m.media-amazon.com/images/I/91gBa-qKp7L._AC_UX679_.jpg" alt="" loading="lazy"><div><a href="" target="_blank" rel="noopener">Nike Everyday Plus Cushion Crew Socks 3-Pair Pack</a><small>1 variant · socks</small></div></td>
+  <td class="tags">outdoor, crew socks</td>
+  <td><span class="none">none</span></td>
+  <td><span class="chip ok">performance</span><span class="chip ok">cotton</span></td>
+</tr>
+<tr data-q="moon lence 8 person tent family camping tent waterproof windproof with divided curtain for separated 2 rooms and double layer portable with carry bag outdoor cabin tent instant">
+  <td class="kp"><img src="https://m.media-amazon.com/images/I/51AieZ5NI4S._AC_SX679_.jpg" alt="" loading="lazy"><div><a href="" target="_blank" rel="noopener">Moon Lence 8 Person Tent Family Camping Tent Waterproof Windproof with Divided Curtain for Separated 2 Rooms and Double Layer Portable with Carry Bag Outdoor</a><small>1 variant · camping equipment</small></div></td>
+  <td class="tags">outdoor, tent</td>
+  <td><span class="chip add" title="used by 8 similar market products; searching “cabin tent” doesn’t find it">+ cabin tent</span><span class="chip add" title="used by 11 similar market products; searching “instant tent” doesn’t find it">+ instant</span></td>
+  <td></td>
+</tr>
+<tr data-q="nike everyday plus cushioned training crew socks ">
+  <td class="kp"><img src="https://m.media-amazon.com/images/I/81NwnwzcrKL._AC_SX679_.jpg" alt="" loading="lazy"><div><a href="" target="_blank" rel="noopener">Nike Everyday Plus Cushioned Training Crew Socks</a><small>1 variant · socks</small></div></td>
+  <td class="tags">outdoor, crew socks</td>
+  <td><span class="none">none</span></td>
+  <td><span class="chip ok">performance</span><span class="chip ok">cotton</span></td>
+</tr>
+<tr data-q="nemo disco down sleeping bag ">
+  <td class="kp"><img src="https://m.media-amazon.com/images/I/71RpXnfPrBL._AC_SX679_.jpg" alt="" loading="lazy"><div><a href="" target="_blank" rel="noopener">NEMO Disco Down Sleeping Bag</a><small>1 variant · camping gear</small></div></td>
+  <td class="tags">outdoor, sleeping bag</td>
+  <td><span class="none">none</span></td>
+  <td><span class="chip ok">mummy sleeping</span><span class="chip ok">lightweight</span><span class="chip ok">backpacking</span><span class="chip ok">camping</span><span class="chip ok">hiking</span></td>
+</tr>
+<tr data-q="hanes men&#x27;s sweatshirt, ecosmart fleece hoodie, cotton-blend fleece hooded sweatshirt, plush fleece pullover hoodie ">
+  <td class="kp"><img src="https://m.media-amazon.com/images/I/81n0yTFf+OL._AC_SX679_.jpg" alt="" loading="lazy"><div><a href="" target="_blank" rel="noopener">Hanes Men&#x27;s Sweatshirt, EcoSmart Fleece Hoodie, Cotton-Blend Fleece Hooded Sweatshirt, Plush Fleece Pullover Hoodie</a><small>1 variant · clothes</small></div></td>
+  <td class="tags">outdoor, sweatshirt</td>
+  <td><span class="none">none</span></td>
+  <td><span class="chip ok">fleece crewneck</span><span class="chip ok">breathable</span></td>
+</tr>
+<tr data-q="devico 32oz water bottle with time marker, bpa free &amp; frosted tritan plastic, fast flow &amp; leak proof flip lid, best choice for cycling, running, camping or office work ">
+  <td class="kp"><img src="https://m.media-amazon.com/images/I/61Zge5mtgKS._AC_SX679_.jpg" alt="" loading="lazy"><div><a href="" target="_blank" rel="noopener">DEVICO 32oz Water Bottle with Time Marker, BPA Free &amp; Frosted Tritan Plastic, Fast Flow &amp; Leak Proof Flip Lid, Best Choice for Cycling, Running, Camping or Office Work</a><small>1 variant · drinkware</small></div></td>
+  <td class="tags">outdoor, water bottle</td>
+  <td><span class="none">none</span></td>
+  <td><span class="chip ok">sports</span></td>
+</tr>
+<tr data-q="3-12 pack womens crew socks size 6-9 lightweight thin casual calf socks ">
+  <td class="kp"><img src="https://m.media-amazon.com/images/I/71f7cCu7WQL._AC_UX679_.jpg" alt="" loading="lazy"><div><a href="" target="_blank" rel="noopener">3-12 Pack Womens Crew Socks Size 6-9 LightWeight Thin Casual Calf Socks</a><small>1 variant · socks</small></div></td>
+  <td class="tags">outdoor, crew socks</td>
+  <td><span class="none">none</span></td>
+  <td><span class="chip ok">performance</span><span class="chip ok">cushioned</span><span class="chip ok">cotton</span></td>
+</tr>
+<tr data-q="brooks women&#x27;s caldera 6 sneaker shoes">
+  <td class="kp"><img src="https://m.media-amazon.com/images/I/81leq0DBkyL._AC_SY500_.jpg" alt="" loading="lazy"><div><a href="" target="_blank" rel="noopener">Brooks Women&#x27;s Caldera 6 Sneaker</a><small>1 variant · shoes</small></div></td>
+  <td class="tags">outdoor, sneakers</td>
+  <td><span class="chip add" title="used by 5 similar market products; searching “shoes sneakers” doesn’t find it">+ shoes</span></td>
+  <td></td>
+</tr>
+<tr data-q="6 person easy pop up tents for camping family">
+  <td class="kp"><img src="https://m.media-amazon.com/images/I/61Ys-oeloEL._AC_SX679_.jpg" alt="" loading="lazy"><div><a href="" target="_blank" rel="noopener">6 Person Easy Pop Up Tents for Camping</a><small>1 variant · camping equipment</small></div></td>
+  <td class="tags">outdoor, tent</td>
+  <td><span class="chip add" title="used by 11 similar market products; searching “family tent” doesn’t find it">+ family</span></td>
+  <td><span class="chip ok">cabin tent</span><span class="chip ok">instant</span></td>
+</tr>
+<tr data-q="nike performance lightweight crew training socks cushioned athletic cotton">
+  <td class="kp"><img src="https://m.media-amazon.com/images/I/71weS7ltWLL._AC_SX679_.jpg" alt="" loading="lazy"><div><a href="" target="_blank" rel="noopener">Nike Performance Lightweight Crew Training Socks</a><small>1 variant · socks</small></div></td>
+  <td class="tags">outdoor, socks</td>
+  <td><span class="chip add" title="used by 9 similar market products; searching “cushioned socks” doesn’t find it">+ cushioned</span><span class="chip add" title="used by 4 similar market products; searching “athletic socks” doesn’t find it">+ athletic</span><span class="chip add" title="used by 4 similar market products; searching “cotton socks” doesn’t find it">+ cotton</span></td>
+  <td></td>
+</tr>
+<tr data-q="ozark trail 11 person 3 room 14&#x27; x 14&#x27; instant cabin tent ">
+  <td class="kp"><img src="https://m.media-amazon.com/images/I/41yeMCeaBWL._AC_.jpg" alt="" loading="lazy"><div><a href="" target="_blank" rel="noopener">Ozark Trail 11 Person 3 Room 14&#x27; x 14&#x27; Instant Cabin Tent</a><small>1 variant · camping equipment</small></div></td>
+  <td class="tags">outdoor, tent</td>
+  <td><span class="none">none</span></td>
+  <td><span class="chip ok">camping tent</span><span class="chip ok">family</span></td>
+</tr>
+<tr data-q="men&#x27;s sportswear club fleece hoodie ">
+  <td class="kp"><img src="https://m.media-amazon.com/images/I/61Xp-6XC8nL._AC_SX679_.jpg" alt="" loading="lazy"><div><a href="" target="_blank" rel="noopener">Men&#x27;s Sportswear Club Fleece Hoodie</a><small>1 variant · clothes</small></div></td>
+  <td class="tags">outdoor, hoodie</td>
+  <td><span class="none">none</span></td>
+  <td><span class="chip ok">sweatshirt</span></td>
+</tr>
+<tr data-q="gohimal 8 person tent for camping, waterproof windproof family tent with rainfly, divided curtain design for privacy space, portable with carry bag cabin tent instant">
+  <td class="kp"><img src="https://m.media-amazon.com/images/I/71BXbam4XqL._AC_SY355_.jpg" alt="" loading="lazy"><div><a href="" target="_blank" rel="noopener">GoHimal 8 Person Tent for Camping, Waterproof Windproof Family Tent with Rainfly, Divided Curtain Design for Privacy Space, Portable with Carry Bag</a><small>1 variant · camping equipment</small></div></td>
+  <td class="tags">outdoor, tent</td>
+  <td><span class="chip add" title="used by 8 similar market products; searching “cabin tent” doesn’t find it">+ cabin tent</span><span class="chip add" title="used by 11 similar market products; searching “instant tent” doesn’t find it">+ instant</span></td>
+  <td></td>
+</tr>
+<tr data-q="asics women&#x27;s gel-venture 8 running shoes ">
+  <td class="kp"><img src="https://m.media-amazon.com/images/I/615jKNTNWKL._AC_UY695_.jpg" alt="" loading="lazy"><div><a href="" target="_blank" rel="noopener">ASICS Women&#x27;s Gel-Venture 8 Running Shoes</a><small>1 variant · shoes</small></div></td>
+  <td class="tags">outdoor, running shoes</td>
+  <td><span class="none">none</span></td>
+  <td><span class="chip ok">sneaker</span></td>
+</tr>
+<tr data-q="nike boys nsw club full-zip hoodie ">
+  <td class="kp"><img src="https://m.media-amazon.com/images/I/41tu6aekgjL._AC_SX679_.jpg" alt="" loading="lazy"><div><a href="" target="_blank" rel="noopener">Nike boys Nsw Club Full-Zip Hoodie</a><small>1 variant · clothes</small></div></td>
+  <td class="tags">outdoor, hoodie</td>
+  <td><span class="none">none</span></td>
+  <td><span class="chip ok">sweatshirt</span><span class="chip ok">breathable</span><span class="chip ok">fleece</span></td>
+</tr>
+<tr data-q="sotd athletic cushioned pad mid crew sports socks ">
+  <td class="kp"><img src="https://m.media-amazon.com/images/I/41EpgRxvasL._AC_SX679_.jpg" alt="" loading="lazy"><div><a href="" target="_blank" rel="noopener">SOTD Athletic Cushioned Pad Mid Crew Sports Socks</a><small>1 variant · socks</small></div></td>
+  <td class="tags">outdoor, socks</td>
+  <td><span class="none">none</span></td>
+  <td><span class="chip ok">cotton</span></td>
+</tr>
+<tr data-q="sleeping bag, sleeping pad, pillow combo set ">
+  <td class="kp"><img src="https://m.media-amazon.com/images/I/71yppaKKdOL._AC_SX679_.jpg" alt="" loading="lazy"><div><a href="" target="_blank" rel="noopener">Sleeping Bag, Sleeping Pad, Pillow Combo Set</a><small>1 variant · camping gear</small></div></td>
+  <td class="tags">outdoor, sleeping bag</td>
+  <td><span class="none">none</span></td>
+  <td><span class="chip ok">mummy sleeping</span><span class="chip ok">lightweight</span><span class="chip ok">backpacking</span><span class="chip ok">camping</span><span class="chip ok">hiking</span></td>
+</tr>
+<tr data-q="real essentials 3 pack: men&#x27;s fleece elastic bottom jogger sweatpants with pockets ">
+  <td class="kp"><img src="https://m.media-amazon.com/images/I/81A9SLlsENL._AC_UX679_.jpg" alt="" loading="lazy"><div><a href="" target="_blank" rel="noopener">Real Essentials 3 Pack: Men&#x27;s Fleece Elastic Bottom Jogger Sweatpants with Pockets</a><small>1 variant · clothes</small></div></td>
+  <td class="tags">outdoor, joggers</td>
+  <td><span class="none">none</span></td>
+  <td><span class="chip ok">athletic</span><span class="chip ok">pants</span><span class="chip ok">tech</span></td>
+</tr>
+<tr data-q="ozark trail 16x16-feet 12-person 3 room instant cabin tent with pre-attached poles ">
+  <td class="kp"><img src="https://m.media-amazon.com/images/I/51yIOh0WP5L._AC_.jpg" alt="" loading="lazy"><div><a href="" target="_blank" rel="noopener">Ozark Trail 16x16-Feet 12-Person 3 Room Instant Cabin Tent with Pre-Attached Poles</a><small>1 variant · camping equipment</small></div></td>
+  <td class="tags">outdoor, tent</td>
+  <td><span class="none">none</span></td>
+  <td><span class="chip ok">camping tent</span><span class="chip ok">family</span></td>
+</tr>
+<tr data-q="hewolf waterproof instant camping tent cabin tent family">
+  <td class="kp"><img src="https://m.media-amazon.com/images/I/61SRhFH7XkL._AC_SX679_.jpg" alt="" loading="lazy"><div><a href="" target="_blank" rel="noopener">Hewolf Waterproof Instant Camping Tent</a><small>1 variant · camping equipment</small></div></td>
+  <td class="tags">outdoor, tent</td>
+  <td><span class="chip add" title="used by 8 similar market products; searching “cabin tent” doesn’t find it">+ cabin tent</span><span class="chip add" title="used by 11 similar market products; searching “family tent” doesn’t find it">+ family</span></td>
+  <td></td>
+</tr>
+<tr data-q="xpeti men&#x27;s waterproof hiking boots trekking">
+  <td class="kp"><img src="https://m.media-amazon.com/images/I/613Q3zDe-XL._AC_UY695_.jpg" alt="" loading="lazy"><div><a href="" target="_blank" rel="noopener">XPETI Men&#x27;s Waterproof Hiking Boots</a><small>1 variant · shoes</small></div></td>
+  <td class="tags">outdoor, hiking boots</td>
+  <td><span class="chip add" title="used by 16 similar market products; searching “trekking hiking boots” doesn’t find it">+ trekking</span></td>
+  <td><span class="chip ok">shoes</span></td>
+</tr>
+<tr data-q="arcana arc water bottle with time marker ">
+  <td class="kp"><img src="https://m.media-amazon.com/images/I/71MqXSvDq5L._AC_SX679_.jpg" alt="" loading="lazy"><div><a href="" target="_blank" rel="noopener">ARCANA Arc Water Bottle With Time Marker</a><small>1 variant · drinkware</small></div></td>
+  <td class="tags">outdoor, water bottle</td>
+  <td><span class="none">none</span></td>
+  <td><span class="chip ok">sports</span></td>
+</tr>
+<tr data-q="brooks women&#x27;s ghost 15 gtx sneaker ">
+  <td class="kp"><img src="https://m.media-amazon.com/images/I/710NY1ul6yL._AC_UY695_.jpg" alt="" loading="lazy"><div><a href="" target="_blank" rel="noopener">Brooks Women&#x27;s Ghost 15 GTX Sneaker</a><small>1 variant · shoes</small></div></td>
+  <td class="tags">outdoor, sneakers</td>
+  <td><span class="none">none</span></td>
+  <td><span class="chip ok">shoes</span></td>
+</tr>
+<tr data-q="hikergarden 6 person camping tent ">
+  <td class="kp"><img src="https://m.media-amazon.com/images/I/61EfSicLNaL._AC_SX679_.jpg" alt="" loading="lazy"><div><a href="" target="_blank" rel="noopener">HIKERGARDEN 6 Person Camping Tent</a><small>1 variant · camping equipment</small></div></td>
+  <td class="tags">outdoor, tent</td>
+  <td><span class="none">none</span></td>
+  <td><span class="chip ok">cabin tent</span><span class="chip ok">instant</span><span class="chip ok">family</span></td>
+</tr>
+<tr data-q="nike training cotton cushioned crew socks 6 pack 8-12 ">
+  <td class="kp"><img src="https://m.media-amazon.com/images/I/61xRp0QTSvL._AC_SY879_.jpg" alt="" loading="lazy"><div><a href="" target="_blank" rel="noopener">Nike Training Cotton Cushioned Crew Socks 6 Pack 8-12</a><small>1 variant · socks</small></div></td>
+  <td class="tags">outdoor, crew socks</td>
+  <td><span class="none">none</span></td>
+  <td><span class="chip ok">performance</span></td>
+</tr>
+<tr data-q="coleman skydome camping tent, 2/4/6/8 person family dome tent with 5 minute setup, strong frame can withstand 35mph winds, roomy interior with extra storage included instant">
+  <td class="kp"><img src="https://m.media-amazon.com/images/I/71fbgvEnUmL._AC_SX679_.jpg" alt="" loading="lazy"><div><a href="" target="_blank" rel="noopener">Coleman Skydome Camping Tent, 2/4/6/8 Person Family Dome Tent with 5 Minute Setup, Strong Frame can Withstand 35MPH Winds, Roomy Interior with Extra Storage Included</a><small>1 variant · camping equipment</small></div></td>
+  <td class="tags">outdoor, tent</td>
+  <td><span class="chip add" title="used by 11 similar market products; searching “instant tent” doesn’t find it">+ instant</span></td>
+  <td><span class="chip ok">cabin tent</span></td>
+</tr>
+<tr data-q="nike boys&#x27; performance cushion crew socks with band cotton">
+  <td class="kp"><img src="https://m.media-amazon.com/images/I/61HOIIul77L._AC_UX679_.jpg" alt="" loading="lazy"><div><a href="" target="_blank" rel="noopener">NIKE Boys&#x27; Performance Cushion Crew Socks with Band</a><small>1 variant · socks</small></div></td>
+  <td class="tags">outdoor, crew socks</td>
+  <td><span class="chip add" title="used by 4 similar market products; searching “cotton crew socks” doesn’t find it">+ cotton</span></td>
+  <td></td>
+</tr>
+<tr data-q="moon lence pop up tent family camping tent for 4 person portable instant tent automatic tent waterproof windproof for camping hiking mountaineering ">
+  <td class="kp"><img src="https://m.media-amazon.com/images/I/61oUgvc4NpL._AC_SX679_.jpg" alt="" loading="lazy"><div><a href="" target="_blank" rel="noopener">MOON LENCE Pop Up Tent Family Camping Tent for 4 Person Portable Instant Tent Automatic Tent Waterproof Windproof for Camping Hiking Mountaineering</a><small>1 variant · camping equipment</small></div></td>
+  <td class="tags">outdoor, tent</td>
+  <td><span class="none">none</span></td>
+  <td><span class="chip ok">cabin tent</span></td>
+</tr>
+<tr data-q="campros cp tent 8 person camping tents, weather resistant family tent, 5 large mesh windows, double layer, divided curtain for separated room, portable with carry bag cabin tent instant">
+  <td class="kp"><img src="https://m.media-amazon.com/images/I/51FS0eX1EpL._AC_SX569_.jpg" alt="" loading="lazy"><div><a href="" target="_blank" rel="noopener">CAMPROS CP Tent 8 Person Camping Tents, Weather Resistant Family Tent, 5 Large Mesh Windows, Double Layer, Divided Curtain for Separated Room, Portable with Carry Bag</a><small>1 variant · camping equipment</small></div></td>
+  <td class="tags">outdoor, tent</td>
+  <td><span class="chip add" title="used by 8 similar market products; searching “cabin tent” doesn’t find it">+ cabin tent</span><span class="chip add" title="used by 11 similar market products; searching “instant tent” doesn’t find it">+ instant</span></td>
+  <td></td>
+</tr>
+<tr data-q="hanes mens ecosmart hoodie, midweight fleece sweatshirt, pullover hooded sweatshirt for men ">
+  <td class="kp"><img src="https://m.media-amazon.com/images/I/714UXW5A+KL._AC_UY879_.jpg" alt="" loading="lazy"><div><a href="" target="_blank" rel="noopener">Hanes mens Ecosmart Hoodie, Midweight Fleece Sweatshirt, Pullover Hooded Sweatshirt for Men</a><small>1 variant · clothes</small></div></td>
+  <td class="tags">outdoor, hoodie</td>
+  <td><span class="none">none</span></td>
+  <td><span class="chip ok">club</span></td>
+</tr>
+<tr data-q="nike men&#x27;s pull over hoodie ">
+  <td class="kp"><img src="https://m.media-amazon.com/images/I/81JXg7SGKnL._AC_SX679_.jpg" alt="" loading="lazy"><div><a href="" target="_blank" rel="noopener">Nike Men&#x27;s Pull Over Hoodie</a><small>1 variant · clothes</small></div></td>
+  <td class="tags">outdoor, hoodie</td>
+  <td><span class="none">none</span></td>
+  <td><span class="chip ok">sweatshirt</span><span class="chip ok">fleece</span><span class="chip ok">club</span></td>
+</tr>
+<tr data-q="motivational water bottle with straw &amp; handle,one gallon water bottle 128 oz/3.8l,reusable water jug, achieve all-day hydration spillproof, bpa free ">
+  <td class="kp"><img src="https://m.media-amazon.com/images/I/71LHReQK1QL._AC_SX679_.jpg" alt="" loading="lazy"><div><a href="" target="_blank" rel="noopener">Motivational Water Bottle with Straw &amp; Handle,One Gallon Water Bottle 128 oz/3.8L,Reusable Water Jug, Achieve All-Day Hydration SpillProof, BPA FREE</a><small>1 variant · drinkware</small></div></td>
+  <td class="tags">outdoor, water bottle</td>
+  <td><span class="none">none</span></td>
+  <td><span class="chip ok">sports</span></td>
+</tr>
+<tr data-q="on men&#x27;s cloudrunner sneakers ">
+  <td class="kp"><img src="https://m.media-amazon.com/images/I/51RDWOzS4SL._AC_UY695_.jpg" alt="" loading="lazy"><div><a href="" target="_blank" rel="noopener">On Men&#x27;s Cloudrunner Sneakers</a><small>1 variant · shoes</small></div></td>
+  <td class="tags">outdoor, sneakers</td>
+  <td><span class="none">none</span></td>
+  <td><span class="chip ok">shoes</span></td>
+</tr>
+<tr data-q="coach women&#x27;s court backpack in signature canvas ">
+  <td class="kp"><img src="https://m.media-amazon.com/images/I/71CWNt3SkuL._AC_SY879_.jpg" alt="" loading="lazy"><div><a href="" target="_blank" rel="noopener">Coach Women&#x27;s Court Backpack In Signature Canvas</a><small>1 variant · bags</small></div></td>
+  <td class="tags">outdoor, backpack</td>
+  <td><span class="none">none</span></td>
+  <td><span class="chip ok">lightweight</span></td>
+</tr>
+<tr data-q="tanming women&#x27;s faux leather moto biker short coat jacket workout">
+  <td class="kp"><img src="https://m.media-amazon.com/images/I/71zXW2Q7VIL._AC_UY879_.jpg" alt="" loading="lazy"><div><a href="" target="_blank" rel="noopener">Tanming Women&#x27;s Faux Leather Moto Biker Short Coat Jacket</a><small>1 variant · clothes</small></div></td>
+  <td class="tags">outdoor, shorts</td>
+  <td><span class="chip add" title="used by 3 similar market products; searching “workout shorts” doesn’t find it">+ workout</span></td>
+  <td><span class="chip ok">waisted</span><span class="chip ok">raw hem</span><span class="chip ok">ripped</span></td>
+</tr>
+<tr data-q="zmoon emergency sleeping bag 2 pack lightweight survival sleeping bags thermal bivy sack portable emergency blanket for camping, hiking, outdoor, activities ">
+  <td class="kp"><img src="https://m.media-amazon.com/images/I/51NhddQ0uaS._AC_.jpg" alt="" loading="lazy"><div><a href="" target="_blank" rel="noopener">Zmoon Emergency Sleeping Bag 2 Pack Lightweight Survival Sleeping Bags Thermal Bivy Sack Portable Emergency Blanket for Camping, Hiking, Outdoor, Activities</a><small>1 variant · camping gear</small></div></td>
+  <td class="tags">outdoor, sleeping bag</td>
+  <td><span class="none">none</span></td>
+  <td><span class="chip ok">mummy sleeping</span><span class="chip ok">backpacking</span></td>
+</tr>
+<tr data-q="unp camping tent 9 person, family cabin tent, 5 large ventilation mesh windows, 14&#x27;x14&#x27;x78 inches tall with dividers curtain for 2 room instant">
+  <td class="kp"><img src="https://m.media-amazon.com/images/I/61sAkHdpW2L._AC_SX679_.jpg" alt="" loading="lazy"><div><a href="" target="_blank" rel="noopener">UNP Camping Tent 9 Person, Family Cabin Tent, 5 Large Ventilation Mesh Windows, 14&#x27;x14&#x27;x78 inches Tall with Dividers Curtain for 2 Room</a><small>1 variant · camping equipment</small></div></td>
+  <td class="tags">outdoor, tent</td>
+  <td><span class="chip add" title="used by 11 similar market products; searching “instant tent” doesn’t find it">+ instant</span></td>
+  <td></td>
+</tr>
+<tr data-q="adidas men&#x27;s athletic cushioned low cut socks with arch compression for a secure fit crew socks cotton">
+  <td class="kp"><img src="https://m.media-amazon.com/images/I/81fPax1g3aS._AC_SX679_.jpg" alt="" loading="lazy"><div><a href="" target="_blank" rel="noopener">adidas Men&#x27;s Athletic Cushioned Low Cut Socks with Arch Compression for a Secure Fit</a><small>1 variant · clothes</small></div></td>
+  <td class="tags">outdoor, socks</td>
+  <td><span class="chip add" title="used by 13 similar market products; searching “crew socks” doesn’t find it">+ crew socks</span><span class="chip add" title="used by 3 similar market products; searching “cotton socks” doesn’t find it">+ cotton</span></td>
+  <td></td>
+</tr>
+<tr data-q="asics women&#x27;s gel-nimbus 25 running shoes sneaker">
+  <td class="kp"><img src="https://m.media-amazon.com/images/I/61mRVKMYCsL._AC_SY695_.jpg" alt="" loading="lazy"><div><a href="" target="_blank" rel="noopener">ASICS Women&#x27;s Gel-Nimbus 25 Running Shoes</a><small>1 variant · shoes</small></div></td>
+  <td class="tags">outdoor, running shoes</td>
+  <td><span class="chip add" title="used by 3 similar market products; searching “sneaker running shoes” doesn’t find it">+ sneaker</span></td>
+  <td></td>
+</tr>
+<tr data-q="fruit of the loom eversoft fleece joggers with pockets, relaxed fit, moisture wicking, breathable, tapered sweatpants ">
+  <td class="kp"><img src="https://m.media-amazon.com/images/I/61TCpB7aONL._AC_SY879_.jpg" alt="" loading="lazy"><div><a href="" target="_blank" rel="noopener">Fruit of the Loom Eversoft Fleece Joggers with Pockets, Relaxed Fit, Moisture Wicking, Breathable, Tapered Sweatpants</a><small>1 variant · clothes</small></div></td>
+  <td class="tags">outdoor, joggers</td>
+  <td><span class="none">none</span></td>
+  <td><span class="chip ok">athletic</span><span class="chip ok">pants</span></td>
+</tr>
+<tr data-q="coleman camping tent with instant setup, 4/6/8/10 person weatherproof tent with weathertec technology, double-thick fabric, and included carry bag, sets up in 60 seconds cabin tent family">
+  <td class="kp"><img src="https://m.media-amazon.com/images/I/71GGHGn9vaL._AC_SY355_.jpg" alt="" loading="lazy"><div><a href="" target="_blank" rel="noopener">Coleman Camping Tent with Instant Setup, 4/6/8/10 Person Weatherproof Tent with WeatherTec Technology, Double-Thick Fabric, and Included Carry Bag, Sets Up in 60 Seconds</a><small>1 variant · camping equipment</small></div></td>
+  <td class="tags">outdoor, tent</td>
+  <td><span class="chip add" title="used by 8 similar market products; searching “cabin tent” doesn’t find it">+ cabin tent</span><span class="chip add" title="used by 11 similar market products; searching “family tent” doesn’t find it">+ family</span></td>
+  <td></td>
+</tr>
+<tr data-q="nike performance cushion crew training socks cotton">
+  <td class="kp"><img src="https://m.media-amazon.com/images/I/71lyRhEmZaL._AC_SX679_.jpg" alt="" loading="lazy"><div><a href="" target="_blank" rel="noopener">Nike Performance Cushion Crew Training Socks</a><small>1 variant · socks</small></div></td>
+  <td class="tags">outdoor, socks</td>
+  <td><span class="chip add" title="used by 4 similar market products; searching “cotton socks” doesn’t find it">+ cotton</span></td>
+  <td><span class="chip ok">athletic</span></td>
+</tr>
+<tr data-q="v vilisun sleeping bag liner, lightweight portable, soft travel and camping sheet, with compact and carry bag, for travel, hotel ">
+  <td class="kp"><img src="https://m.media-amazon.com/images/I/51T1FSIP8kL._AC_SX679_.jpg" alt="" loading="lazy"><div><a href="" target="_blank" rel="noopener">V VILISUN Sleeping Bag Liner, Lightweight Portable, Soft Travel and Camping Sheet, with Compact and Carry Bag, for Travel, Hotel</a><small>1 variant · camping gear</small></div></td>
+  <td class="tags">outdoor, sleeping bag</td>
+  <td><span class="none">none</span></td>
+  <td><span class="chip ok">mummy sleeping</span><span class="chip ok">backpacking</span><span class="chip ok">hiking</span></td>
+</tr>
+<tr data-q="amazon essentials men&#x27;s regular-fit short-sleeve crewneck t-shirt, pack of 2 running">
+  <td class="kp"><img src="https://m.media-amazon.com/images/I/716ufOashcL._AC_UX679_.jpg" alt="" loading="lazy"><div><a href="" target="_blank" rel="noopener">Amazon Essentials Men&#x27;s Regular-Fit Short-Sleeve Crewneck T-Shirt, Pack of 2</a><small>1 variant · clothes</small></div></td>
+  <td class="tags">outdoor, shorts</td>
+  <td><span class="chip add" title="used by 5 similar market products; searching “running shorts” doesn’t find it">+ running</span></td>
+  <td><span class="chip ok">athletic</span><span class="chip ok">workout</span></td>
+</tr>
+<tr data-q="champion women&#x27;s socks, performance no show socks, women&#x27;s athletic cushioned socks, 6-pair pack ">
+  <td class="kp"><img src="https://m.media-amazon.com/images/I/91Gg7fGeLSL._AC_SX679_.jpg" alt="" loading="lazy"><div><a href="" target="_blank" rel="noopener">Champion Women&#x27;s Socks, Performance No Show Socks, Women&#x27;s Athletic Cushioned Socks, 6-Pair Pack</a><small>1 variant · clothes</small></div></td>
+  <td class="tags">outdoor, socks</td>
+  <td><span class="none">none</span></td>
+  <td><span class="chip ok">ankle socks</span><span class="chip ok">non slip</span><span class="chip ok">liner</span></td>
+</tr>
+<tr data-q="outventure women&#x27;s mid lightweight outdoor hiking boots ">
+  <td class="kp"><img src="https://m.media-amazon.com/images/I/71Dm-NR+fRL._AC_SY500_.jpg" alt="" loading="lazy"><div><a href="" target="_blank" rel="noopener">OUTVENTURE Women&#x27;s Mid Lightweight Outdoor Hiking Boots</a><small>1 variant · shoes</small></div></td>
+  <td class="tags">outdoor, hiking boots</td>
+  <td><span class="none">none</span></td>
+  <td><span class="chip ok">backpacking</span><span class="chip ok">waterproof</span><span class="chip ok">trekking</span><span class="chip ok">shoes</span></td>
+</tr>
+<tr data-q="ozark trail 10-person dark rest instant cabin tent ">
+  <td class="kp"><img src="https://m.media-amazon.com/images/I/51wdX0yki5L._AC_SX679_.jpg" alt="" loading="lazy"><div><a href="" target="_blank" rel="noopener">Ozark Trail 10-Person Dark Rest Instant Cabin Tent</a><small>1 variant · camping equipment</small></div></td>
+  <td class="tags">outdoor, tent</td>
+  <td><span class="none">none</span></td>
+  <td><span class="chip ok">camping tent</span><span class="chip ok">family</span></td>
+</tr>
+<tr data-q="camping tent, waterproof family tent with removable rainfly and carry bag, lightweight tent with stakes for camping, traveling, backpacking, hiking, outdoors instant">
+  <td class="kp"><img src="https://m.media-amazon.com/images/I/715plu-jLEL._AC_SX679_.jpg" alt="" loading="lazy"><div><a href="" target="_blank" rel="noopener">Camping Tent, Waterproof Family Tent with Removable Rainfly and Carry Bag, Lightweight Tent with Stakes for Camping, Traveling, Backpacking, Hiking, Outdoors</a><small>1 variant · camping equipment</small></div></td>
+  <td class="tags">outdoor, tent</td>
+  <td><span class="chip add" title="used by 11 similar market products; searching “instant tent” doesn’t find it">+ instant</span></td>
+  <td><span class="chip ok">cabin tent</span></td>
+</tr>
+<tr data-q="hanes boys hanes boys&#x27; socks, super value 20-pair socks, ankle and no show multi-packs crew socks cushioned athletic">
+  <td class="kp"><img src="https://m.media-amazon.com/images/I/81-TETJDLCL._AC_UY879_.jpg" alt="" loading="lazy"><div><a href="" target="_blank" rel="noopener">Hanes boys Hanes Boys&#x27; Socks, Super Value 20-pair Socks, Ankle and No Show Multi-packs</a><small>1 variant · socks</small></div></td>
+  <td class="tags">outdoor, socks</td>
+  <td><span class="chip add" title="used by 13 similar market products; searching “crew socks” doesn’t find it">+ crew socks</span><span class="chip add" title="used by 9 similar market products; searching “cushioned socks” doesn’t find it">+ cushioned</span><span class="chip add" title="used by 4 similar market products; searching “athletic socks” doesn’t find it">+ athletic</span></td>
+  <td><span class="chip ok">cotton</span></td>
+</tr>
+<tr data-q="hanes men&#x27;s beefyt t-shirt, heavyweight cotton crewneck tee, 1 or 2 pack, available in tall sizes ">
+  <td class="kp"><img src="https://m.media-amazon.com/images/I/717M1-EeF4L._AC_UX679_.jpg" alt="" loading="lazy"><div><a href="" target="_blank" rel="noopener">Hanes Men&#x27;s Beefyt T-Shirt, Heavyweight Cotton Crewneck Tee, 1 Or 2 Pack, Available in Tall Sizes</a><small>1 variant · clothes</small></div></td>
+  <td class="tags">outdoor, t shirt</td>
+  <td><span class="none">none</span></td>
+  <td><span class="chip ok">essentials</span><span class="chip ok">t-shirt</span></td>
+</tr>
+<tr data-q="nike performance cushion crew socks with band ">
+  <td class="kp"><img src="https://m.media-amazon.com/images/I/81XwDw-bXpL._AC_SX679_.jpg" alt="" loading="lazy"><div><a href="" target="_blank" rel="noopener">Nike Performance Cushion Crew Socks with Band</a><small>1 variant · socks</small></div></td>
+  <td class="tags">outdoor, crew socks</td>
+  <td><span class="none">none</span></td>
+  <td><span class="chip ok">cotton</span></td>
+</tr>
+<tr data-q="coleman carlsbad dark room camping tent with screened porch, 4/6 person tent blocks 90% of sunlight and keeps inside cool, weatherproof tent with easy setup and screened-in porch cabin tent instant family">
+  <td class="kp"><img src="https://m.media-amazon.com/images/I/71jKW9Ld4VL._AC_SX569_.jpg" alt="" loading="lazy"><div><a href="" target="_blank" rel="noopener">Coleman Carlsbad Dark Room Camping Tent with Screened Porch, 4/6 Person Tent Blocks 90% of Sunlight and Keeps Inside Cool, Weatherproof Tent with Easy Setup and Screened-In Porch</a><small>1 variant · camping equipment</small></div></td>
+  <td class="tags">outdoor, tent</td>
+  <td><span class="chip add" title="used by 8 similar market products; searching “cabin tent” doesn’t find it">+ cabin tent</span><span class="chip add" title="used by 11 similar market products; searching “instant tent” doesn’t find it">+ instant</span><span class="chip add" title="used by 11 similar market products; searching “family tent” doesn’t find it">+ family</span></td>
+  <td></td>
+</tr>
+<tr data-q="free soldier men&#x27;s hiking boots outdoor lightweight breathable ankle boots waterproof for trekking hiking ">
+  <td class="kp"><img src="https://m.media-amazon.com/images/I/71qXTGqwb8L._AC_SX679_.jpg" alt="" loading="lazy"><div><a href="" target="_blank" rel="noopener">FREE SOLDIER Men&#x27;s Hiking Boots Outdoor Lightweight Breathable Ankle Boots Waterproof for Trekking Hiking</a><small>1 variant · shoes</small></div></td>
+  <td class="tags">outdoor, hiking boots</td>
+  <td><span class="none">none</span></td>
+  <td><span class="chip ok">shoes</span></td>
+</tr>
+<tr data-q="jansport superbreak one backpack, salmon ">
+  <td class="kp"><img src="https://m.media-amazon.com/images/I/81Td4kwgErL._AC_SX679_.jpg" alt="" loading="lazy"><div><a href="" target="_blank" rel="noopener">JanSport SuperBreak One Backpack, Salmon</a><small>1 variant · bags</small></div></td>
+  <td class="tags">outdoor, backpack</td>
+  <td><span class="none">none</span></td>
+  <td><span class="chip ok">lightweight</span></td>
+</tr>
+<tr data-q="nike mens everyday cushioned training crew socks performance">
+  <td class="kp"><img src="https://m.media-amazon.com/images/I/715UFmokpzL._AC_SX385_.jpg" alt="" loading="lazy"><div><a href="" target="_blank" rel="noopener">Nike mens Everyday Cushioned Training Crew Socks</a><small>1 variant · socks</small></div></td>
+  <td class="tags">outdoor, crew socks</td>
+  <td><span class="chip add" title="used by 3 similar market products; searching “performance crew socks” doesn’t find it">+ performance</span></td>
+  <td><span class="chip ok">cotton</span></td>
+</tr>
+<tr data-q="coach 6495 large court backpack in signature canvas ">
+  <td class="kp"><img src="https://m.media-amazon.com/images/I/61F67GydacS._AC_SX425_.jpg" alt="" loading="lazy"><div><a href="" target="_blank" rel="noopener">Coach 6495 Large Court Backpack In Signature Canvas</a><small>1 variant · bags</small></div></td>
+  <td class="tags">outdoor, backpack</td>
+  <td><span class="none">none</span></td>
+  <td><span class="chip ok">lightweight</span></td>
+</tr>
+<tr data-q="teton sports -35 degree and 0 degree sleeping bag. warm and comfortable camping sleeping bag, teton tough canvas shell for camping, hunting, and cold weather ">
+  <td class="kp"><img src="https://m.media-amazon.com/images/I/71hR1SZY0fL._AC_SY450_.jpg" alt="" loading="lazy"><div><a href="" target="_blank" rel="noopener">TETON Sports -35 Degree and 0 Degree Sleeping Bag. Warm and Comfortable Camping Sleeping Bag, TETON Tough Canvas Shell for Camping, Hunting, and Cold Weather</a><small>1 variant · camping gear</small></div></td>
+  <td class="tags">outdoor, sleeping bag</td>
+  <td><span class="none">none</span></td>
+  <td><span class="chip ok">mummy sleeping</span><span class="chip ok">lightweight</span><span class="chip ok">backpacking</span><span class="chip ok">hiking</span></td>
+</tr>
+<tr data-q="outdoormaster tents, 4/6/8 person camping tent with dark space technology, easy setup in 60 seconds, weatherproof pop up tent for camping with top rainfly, instant cabin tent family">
+  <td class="kp"><img src="https://m.media-amazon.com/images/I/61Wb7ZOgKjL._AC_SX679_.jpg" alt="" loading="lazy"><div><a href="" target="_blank" rel="noopener">OutdoorMaster Tents, 4/6/8 Person Camping Tent with Dark Space Technology, Easy Setup in 60 Seconds, Weatherproof Pop Up Tent for Camping with Top Rainfly, Instant Cabin Tent</a><small>1 variant · camping equipment</small></div></td>
+  <td class="tags">outdoor, tent</td>
+  <td><span class="chip add" title="used by 11 similar market products; searching “family tent” doesn’t find it">+ family</span></td>
+  <td></td>
+</tr>
+<tr data-q="brooks women&#x27;s revel 5 running shoe ">
+  <td class="kp"><img src="https://m.media-amazon.com/images/I/81IlHytajCL._AC_SY575_.jpg" alt="" loading="lazy"><div><a href="" target="_blank" rel="noopener">Brooks Women&#x27;s Revel 5 Running Shoe</a><small>1 variant · shoes</small></div></td>
+  <td class="tags">outdoor, running shoes</td>
+  <td><span class="none">none</span></td>
+  <td><span class="chip ok">sneaker</span></td>
+</tr>
+<tr data-q="h2o capsule 2.2l half gallon water bottle with storage sleeve and covered straw lid ">
+  <td class="kp"><img src="https://m.media-amazon.com/images/I/81jAl0BOj6L._AC_SX679_.jpg" alt="" loading="lazy"><div><a href="" target="_blank" rel="noopener">H2O Capsule 2.2L Half Gallon Water Bottle with Storage Sleeve and Covered Straw Lid</a><small>1 variant · drinkware</small></div></td>
+  <td class="tags">outdoor, water bottle</td>
+  <td><span class="none">none</span></td>
+  <td><span class="chip ok">sports</span></td>
+</tr>
+<tr data-q="happy travel tent 6 person tents for camping, waterproof easy setup camping tent with rainfly, portable large family cabin tent with 5 large mesh windows and carry bag for outdoor camping &amp; hiking ">
+  <td class="kp"><img src="https://m.media-amazon.com/images/I/61SALLf22zL._AC_SX679_.jpg" alt="" loading="lazy"><div><a href="" target="_blank" rel="noopener">Happy Travel Tent 6 Person Tents for Camping, Waterproof Easy Setup Camping Tent with Rainfly, Portable Large Family Cabin Tent with 5 Large Mesh Windows and Carry Bag for Outdoor Camping &amp; Hiking</a><small>1 variant · camping equipment</small></div></td>
+  <td class="tags">outdoor, tent</td>
+  <td><span class="none">none</span></td>
+  <td><span class="chip ok">instant</span></td>
+</tr>
+<tr data-q="tents, 6/8 person 60 seconds set up camping tent, waterproof pop up tent with top rainfly, instant cabin tent, advanced venting design, provide gate mat family">
+  <td class="kp"><img src="https://m.media-amazon.com/images/I/617uvheU4uL._AC_SX679_.jpg" alt="" loading="lazy"><div><a href="" target="_blank" rel="noopener">Tents, 6/8 Person 60 Seconds Set Up Camping Tent, Waterproof Pop Up Tent with Top Rainfly, Instant Cabin Tent, Advanced Venting Design, Provide Gate Mat</a><small>1 variant · camping equipment</small></div></td>
+  <td class="tags">outdoor, tent</td>
+  <td><span class="chip add" title="used by 11 similar market products; searching “family tent” doesn’t find it">+ family</span></td>
+  <td></td>
+</tr>
+<tr data-q="nike unisex-child everyday cushioned crew socks ">
+  <td class="kp"><img src="https://m.media-amazon.com/images/I/81PbfbQkCXL._AC_SX679_.jpg" alt="" loading="lazy"><div><a href="" target="_blank" rel="noopener">Nike unisex-child Everyday Cushioned Crew Socks</a><small>1 variant · socks</small></div></td>
+  <td class="tags">outdoor, crew socks</td>
+  <td><span class="none">none</span></td>
+  <td><span class="chip ok">performance</span><span class="chip ok">cotton</span></td>
+</tr>
+<tr data-q="hanes women&#x27;s socks, lightweight breathable socks, no show and super no show, 6-pack crew socks cushioned">
+  <td class="kp"><img src="https://m.media-amazon.com/images/I/91wpdBTuZIL._AC_SX679_.jpg" alt="" loading="lazy"><div><a href="" target="_blank" rel="noopener">Hanes Women&#x27;s Socks, Lightweight Breathable Socks, No Show and Super No Show, 6-Pack</a><small>1 variant · clothes</small></div></td>
+  <td class="tags">outdoor, socks</td>
+  <td><span class="chip add" title="used by 11 similar market products; searching “crew socks” doesn’t find it">+ crew socks</span><span class="chip add" title="used by 5 similar market products; searching “cushioned socks” doesn’t find it">+ cushioned</span></td>
+  <td><span class="chip ok">ankle socks</span><span class="chip ok">athletic</span></td>
+</tr>
+<tr data-q="vmini water bottle with straw, wide rotating handle straw lid, wide mouth vacuum insulated stainless steel water bottle, gradient pink+pink, 32 oz ">
+  <td class="kp"><img src="https://m.media-amazon.com/images/I/71wOBU8k8XL._AC_SX679_.jpg" alt="" loading="lazy"><div><a href="" target="_blank" rel="noopener">Vmini Water Bottle with Straw, Wide Rotating Handle Straw Lid, Wide Mouth Vacuum Insulated Stainless Steel Water Bottle, Gradient Pink+Pink, 32 oz</a><small>1 variant · drinkware</small></div></td>
+  <td class="tags">outdoor, water bottle</td>
+  <td><span class="none">none</span></td>
+  <td><span class="chip ok">sports</span></td>
+</tr>
+<tr data-q="nike men&#x27;s sportswear club fleece hoodie white xl ">
+  <td class="kp"><img src="https://m.media-amazon.com/images/I/516Pb+ovbrL._AC_SY879_.jpg" alt="" loading="lazy"><div><a href="" target="_blank" rel="noopener">Nike Men&#x27;s Sportswear Club Fleece Hoodie White XL</a><small>1 variant · clothes</small></div></td>
+  <td class="tags">outdoor, hoodie</td>
+  <td><span class="none">none</span></td>
+  <td><span class="chip ok">sweatshirt</span></td>
+</tr>
+<tr data-q="nike everyday cushion crew socks ">
+  <td class="kp"><img src="https://m.media-amazon.com/images/I/81Y49CpPftL._AC_SX679_.jpg" alt="" loading="lazy"><div><a href="" target="_blank" rel="noopener">Nike Everyday Cushion Crew Socks</a><small>1 variant · socks</small></div></td>
+  <td class="tags">outdoor, crew socks</td>
+  <td><span class="none">none</span></td>
+  <td><span class="chip ok">performance</span><span class="chip ok">cotton</span></td>
+</tr>
+<tr data-q="amazon essentials men&#x27;s fleece sweatpant ">
+  <td class="kp"><img src="https://m.media-amazon.com/images/I/81ukPQVrTKL._AC_SY550_.jpg" alt="" loading="lazy"><div><a href="" target="_blank" rel="noopener">Amazon Essentials Men&#x27;s Fleece Sweatpant</a><small>1 variant · clothes</small></div></td>
+  <td class="tags">outdoor, sweatpants</td>
+  <td><span class="none">none</span></td>
+  <td><span class="chip ok">jogger sweatpants</span><span class="chip ok">wide leg</span><span class="chip ok">athletic</span><span class="chip ok">pants</span></td>
+</tr>
+<tr data-q="nike men&#x27;s everyday cushioned training crew socks ">
+  <td class="kp"><img src="https://m.media-amazon.com/images/I/51yfBEDvqPL._AC_SY879_.jpg" alt="" loading="lazy"><div><a href="" target="_blank" rel="noopener">Nike Men&#x27;s Everyday Cushioned Training Crew Socks</a><small>1 variant · socks</small></div></td>
+  <td class="tags">outdoor, crew socks</td>
+  <td><span class="none">none</span></td>
+  <td><span class="chip ok">performance</span><span class="chip ok">cotton</span></td>
+</tr>
+<tr data-q="eackrola sleeping bag, lightweight waterproof warm &amp; cool weather for 3-4 season camping sleeping bag with reflective strip, portable compression sack for hiking, backpacking, traveling, camping ">
+  <td class="kp"><img src="https://m.media-amazon.com/images/I/61Qj9z8+8+L._AC_SX679_.jpg" alt="" loading="lazy"><div><a href="" target="_blank" rel="noopener">Eackrola Sleeping Bag, Lightweight Waterproof Warm &amp; Cool Weather for 3-4 Season Camping Sleeping Bag with Reflective Strip, Portable Compression Sack for Hiking, Backpacking, Traveling, Camping</a><small>1 variant · camping gear</small></div></td>
+  <td class="tags">outdoor, sleeping bag</td>
+  <td><span class="none">none</span></td>
+  <td><span class="chip ok">mummy sleeping</span></td>
+</tr>
+<tr data-q="camel crown tents for camping 4/6 person tent waterproof easy setup backpacking tents cabin tent family">
+  <td class="kp"><img src="https://m.media-amazon.com/images/I/71XKeETgujL._AC_SX679_.jpg" alt="" loading="lazy"><div><a href="" target="_blank" rel="noopener">CAMEL CROWN Tents for Camping 4/6 Person Tent Waterproof Easy Setup Backpacking Tents</a><small>1 variant · camping equipment</small></div></td>
+  <td class="tags">outdoor, tent</td>
+  <td><span class="chip add" title="used by 8 similar market products; searching “cabin tent” doesn’t find it">+ cabin tent</span><span class="chip add" title="used by 11 similar market products; searching “family tent” doesn’t find it">+ family</span></td>
+  <td><span class="chip ok">instant</span></td>
+</tr>
+<tr data-q="adidas men&#x27;s athletic cushioned quarter socks crew socks cut socks cotton">
+  <td class="kp"><img src="https://m.media-amazon.com/images/I/81hNGGETHXL._AC_UX679_.jpg" alt="" loading="lazy"><div><a href="" target="_blank" rel="noopener">adidas Men&#x27;s Athletic Cushioned Quarter Socks</a><small>1 variant · clothes</small></div></td>
+  <td class="tags">outdoor, socks</td>
+  <td><span class="chip add" title="used by 13 similar market products; searching “crew socks” doesn’t find it">+ crew socks</span><span class="chip add" title="used by 3 similar market products; searching “cut socks” doesn’t find it">+ cut socks</span><span class="chip add" title="used by 3 similar market products; searching “cotton socks” doesn’t find it">+ cotton</span></td>
+  <td></td>
+</tr>
+<tr data-q="nike men&#x27;s club swoosh full zip fleece hoodie ">
+  <td class="kp"><img src="https://m.media-amazon.com/images/I/71p9w+VyW2L._AC_UX679_.jpg" alt="" loading="lazy"><div><a href="" target="_blank" rel="noopener">Nike Men&#x27;s Club Swoosh Full Zip Fleece Hoodie</a><small>1 variant · clothes</small></div></td>
+  <td class="tags">outdoor, hoodie</td>
+  <td><span class="none">none</span></td>
+  <td><span class="chip ok">sweatshirt</span></td>
+</tr>
+<tr data-q="dickies men&#x27;s all purpose cushion crew socks ">
+  <td class="kp"><img src="https://m.media-amazon.com/images/I/91ChmTMh2DL._AC_UX679_.jpg" alt="" loading="lazy"><div><a href="" target="_blank" rel="noopener">Dickies Men&#x27;s All Purpose Cushion Crew Socks</a><small>1 variant · socks</small></div></td>
+  <td class="tags">outdoor, crew socks</td>
+  <td><span class="none">none</span></td>
+  <td><span class="chip ok">performance</span><span class="chip ok">cotton</span></td>
+</tr>
+<tr data-q="vmini water bottle ">
+  <td class="kp"><img src="https://m.media-amazon.com/images/I/61y+IUDHB8L._AC_SX679_.jpg" alt="" loading="lazy"><div><a href="" target="_blank" rel="noopener">Vmini Water Bottle</a><small>1 variant · drinkware</small></div></td>
+  <td class="tags">outdoor, water bottle</td>
+  <td><span class="none">none</span></td>
+  <td><span class="chip ok">sports</span></td>
+</tr>
+<tr data-q="gingtto mens cargo jogger pants slim fit stretch zipper pockets thick cotton pants for men ">
+  <td class="kp"><img src="https://m.media-amazon.com/images/I/61BXyBWXn5L._AC_SY879_.jpg" alt="" loading="lazy"><div><a href="" target="_blank" rel="noopener">GINGTTO Mens Cargo Jogger Pants Slim Fit Stretch Zipper Pockets Thick Cotton Pants for Men</a><small>1 variant · clothes</small></div></td>
+  <td class="tags">outdoor, joggers</td>
+  <td><span class="none">none</span></td>
+  <td><span class="chip ok">jogger sweatpants</span><span class="chip ok">athletic</span><span class="chip ok">tech</span></td>
+</tr>
+<tr data-q="premium cotton crew cut socks athletic">
+  <td class="kp"><img src="https://m.media-amazon.com/images/I/61JzoGfNHFL._AC_SX679_.jpg" alt="" loading="lazy"><div><a href="" target="_blank" rel="noopener">Premium Cotton Crew Cut Socks</a><small>1 variant · socks</small></div></td>
+  <td class="tags">outdoor, socks</td>
+  <td><span class="chip add" title="used by 4 similar market products; searching “athletic socks” doesn’t find it">+ athletic</span></td>
+  <td><span class="chip ok">cushioned</span></td>
+</tr>
+<tr data-q="spukep women hiking boots waterproof mid work shoes lace up suede leather walking trekking mountain outdoor backpacking">
+  <td class="kp"><img src="https://m.media-amazon.com/images/I/81XLqWqRTdL._AC_UY695_.jpg" alt="" loading="lazy"><div><a href="" target="_blank" rel="noopener">SPUKEP Women Hiking Boots Waterproof Mid Work Shoes Lace Up Suede Leather Walking Trekking Mountain Outdoor</a><small>1 variant · shoes</small></div></td>
+  <td class="tags">outdoor, hiking boots</td>
+  <td><span class="chip add" title="used by 15 similar market products; searching “backpacking hiking boots” doesn’t find it">+ backpacking</span></td>
+  <td></td>
+</tr>
+<tr data-q="nike hoops elite backpack gray ">
+  <td class="kp"><img src="https://m.media-amazon.com/images/I/51dL2HltZcL._AC_SX425_.jpg" alt="" loading="lazy"><div><a href="" target="_blank" rel="noopener">Nike Hoops Elite Backpack Gray</a><small>1 variant · bags</small></div></td>
+  <td class="tags">outdoor, backpack</td>
+  <td><span class="none">none</span></td>
+  <td><span class="chip ok">lightweight</span></td>
+</tr>
+<tr data-q="nike men&#x27;s nsw club pullover hoodie ">
+  <td class="kp"><img src="https://m.media-amazon.com/images/I/51As2sY2yCL._AC_UX679_.jpg" alt="" loading="lazy"><div><a href="" target="_blank" rel="noopener">Nike Men&#x27;s NSW Club Pullover Hoodie</a><small>1 variant · clothes</small></div></td>
+  <td class="tags">outdoor, hoodie</td>
+  <td><span class="none">none</span></td>
+  <td><span class="chip ok">sweatshirt</span><span class="chip ok">fleece</span></td>
+</tr>
+<tr data-q="nike hayward 2.0 backpack dv1296-824 lt madder root/atmosphere, one size ">
+  <td class="kp"><img src="https://m.media-amazon.com/images/I/81IyHiids7L._AC_SX679_.jpg" alt="" loading="lazy"><div><a href="" target="_blank" rel="noopener">Nike Hayward 2.0 Backpack DV1296-824 Lt Madder Root/Atmosphere, One Size</a><small>1 variant · bags</small></div></td>
+  <td class="tags">outdoor, backpack</td>
+  <td><span class="none">none</span></td>
+  <td><span class="chip ok">lightweight</span></td>
+</tr>
+<tr data-q="topwolve hiking boots men&#x27;s women&#x27;s waterproof walking shoes low rise trekking climbing shoes outdoor backpacking camping trails shoes running shoes sneakers slip">
+  <td class="kp"><img src="https://m.media-amazon.com/images/I/71hvEmyUs4L._AC_SY500_.jpg" alt="" loading="lazy"><div><a href="" target="_blank" rel="noopener">Topwolve Hiking Boots Men&#x27;s Women&#x27;s Waterproof Walking Shoes Low Rise Trekking Climbing Shoes Outdoor Backpacking Camping Trails Shoes</a><small>1 variant · shoes</small></div></td>
+  <td class="tags">outdoor, hiking boots</td>
+  <td><span class="chip add" title="used by 12 similar market products; searching “running shoes” doesn’t find it">+ running shoes</span><span class="chip add" title="used by 9 similar market products; searching “sneakers walking shoes” doesn’t find it">+ sneakers</span><span class="chip add" title="used by 16 similar market products; searching “slip walking shoes” doesn’t find it">+ slip</span></td>
+  <td><span class="chip ok">lightweight</span></td>
+</tr>
+<tr data-q="coleman montana camping tent, 6/8 person family tent with included rainfly, carry bag, and spacious interior, fits multiple queen airbeds and sets up in 15 minutes cabin tent instant">
+  <td class="kp"><img src="https://m.media-amazon.com/images/I/71kuwELWwdL._AC_SX679_.jpg" alt="" loading="lazy"><div><a href="" target="_blank" rel="noopener">Coleman Montana Camping Tent, 6/8 Person Family Tent with Included Rainfly, Carry Bag, and Spacious Interior, Fits Multiple Queen Airbeds and Sets Up in 15 Minutes</a><small>1 variant · camping equipment</small></div></td>
+  <td class="tags">outdoor, tent</td>
+  <td><span class="chip add" title="used by 8 similar market products; searching “cabin tent” doesn’t find it">+ cabin tent</span><span class="chip add" title="used by 11 similar market products; searching “instant tent” doesn’t find it">+ instant</span></td>
+  <td></td>
+</tr>
+<tr data-q="nike unisex everyday plus cushioned training crew socks 1 pair ">
+  <td class="kp"><img src="https://m.media-amazon.com/images/I/61YLchiyZ0L._AC_SY879_.jpg" alt="" loading="lazy"><div><a href="" target="_blank" rel="noopener">Nike Unisex Everyday Plus Cushioned Training Crew Socks 1 Pair</a><small>1 variant · socks</small></div></td>
+  <td class="tags">outdoor, crew socks</td>
+  <td><span class="none">none</span></td>
+  <td><span class="chip ok">performance</span><span class="chip ok">cotton</span></td>
+</tr>
+<tr data-q="brokig mens gym jogger pants,casual slim workout sweatpants with zipper pockets bodybuilding athletic pants ">
+  <td class="kp"><img src="https://m.media-amazon.com/images/I/51E-5SUrFNL._AC_UX679_.jpg" alt="" loading="lazy"><div><a href="" target="_blank" rel="noopener">BROKIG Mens Gym Jogger Pants,Casual Slim Workout Sweatpants with Zipper Pockets Bodybuilding Athletic Pants</a><small>1 variant · clothes</small></div></td>
+  <td class="tags">outdoor, joggers</td>
+  <td><span class="none">none</span></td>
+  <td><span class="chip ok">tech</span></td>
+</tr>
+<tr data-q="2-person camping tent cabin tent instant family">
+  <td class="kp"><img src="https://m.media-amazon.com/images/I/812wCS-IKuL._AC_SX679_.jpg" alt="" loading="lazy"><div><a href="" target="_blank" rel="noopener">2-Person Camping Tent</a><small>1 variant · camping equipment</small></div></td>
+  <td class="tags">outdoor, tent</td>
+  <td><span class="chip add" title="used by 8 similar market products; searching “cabin tent” doesn’t find it">+ cabin tent</span><span class="chip add" title="used by 11 similar market products; searching “instant tent” doesn’t find it">+ instant</span><span class="chip add" title="used by 11 similar market products; searching “family tent” doesn’t find it">+ family</span></td>
+  <td></td>
+</tr>
+<tr data-q="columbia men&#x27;s trailstorm ascend mid wp trekking and hiking boots waterproof hiking shoes">
+  <td class="kp"><img src="https://m.media-amazon.com/images/I/61-3s6GJrPL._AC_SY695_.jpg" alt="" loading="lazy"><div><a href="" target="_blank" rel="noopener">Columbia Men&#x27;s Trailstorm Ascend Mid Wp Trekking and Hiking Boots</a><small>1 variant · shoes</small></div></td>
+  <td class="tags">outdoor, hiking boots</td>
+  <td><span class="chip add" title="used by 15 similar market products; searching “waterproof hiking hiking boots” doesn’t find it">+ waterproof hiking</span><span class="chip add" title="used by 16 similar market products; searching “shoes hiking boots” doesn’t find it">+ shoes</span></td>
+  <td></td>
+</tr>
+<tr data-q="mens fashion athletic joggers pants ">
+  <td class="kp"><img src="https://m.media-amazon.com/images/I/51bcUFC3yrL._AC_SX569_.jpg" alt="" loading="lazy"><div><a href="" target="_blank" rel="noopener">Mens Fashion Athletic Joggers Pants</a><small>1 variant · clothes</small></div></td>
+  <td class="tags">outdoor, joggers</td>
+  <td><span class="none">none</span></td>
+  <td><span class="chip ok">jogger sweatpants</span><span class="chip ok">cargo pants</span></td>
+</tr>
+<tr data-q="dome tent ozark trail 10-person family camping tent with 3 rooms and screen porch, blue cabin tent instant">
+  <td class="kp"><img src="https://m.media-amazon.com/images/I/71-GnCO9ISL._AC_SX679_.jpg" alt="" loading="lazy"><div><a href="" target="_blank" rel="noopener">Dome Tent Ozark Trail 10-Person Family Camping Tent with 3 Rooms and Screen Porch, blue</a><small>1 variant · camping equipment</small></div></td>
+  <td class="tags">outdoor, tent</td>
+  <td><span class="chip add" title="used by 8 similar market products; searching “cabin tent” doesn’t find it">+ cabin tent</span><span class="chip add" title="used by 11 similar market products; searching “instant tent” doesn’t find it">+ instant</span></td>
+  <td></td>
+</tr>
+<tr data-q="helly hansen men&#x27;s cascade mid cut hiking boots waterproof hiking trekking">
+  <td class="kp"><img src="https://m.media-amazon.com/images/I/919URyujfzS._AC_SX695_.jpg" alt="" loading="lazy"><div><a href="" target="_blank" rel="noopener">Helly Hansen Men&#x27;s Cascade Mid Cut Hiking Boots</a><small>1 variant · shoes</small></div></td>
+  <td class="tags">outdoor, hiking boots</td>
+  <td><span class="chip add" title="used by 15 similar market products; searching “waterproof hiking hiking boots” doesn’t find it">+ waterproof hiking</span><span class="chip add" title="used by 16 similar market products; searching “trekking hiking boots” doesn’t find it">+ trekking</span></td>
+  <td><span class="chip ok">shoes</span></td>
+</tr>
+<tr data-q="hydro flask stainless steel wide mouth water bottle with flex cap and double-wall vacuum insulation ">
+  <td class="kp"><img src="https://m.media-amazon.com/images/I/61SEFOHgXPL._AC_SY879_.jpg" alt="" loading="lazy"><div><a href="" target="_blank" rel="noopener">Hydro Flask Stainless Steel Wide Mouth Water Bottle with Flex Cap and Double-Wall Vacuum Insulation</a><small>1 variant · drinkware</small></div></td>
+  <td class="tags">outdoor, water bottle</td>
+  <td><span class="none">none</span></td>
+  <td><span class="chip ok">sports</span></td>
+</tr>
+<tr data-q="8 person tent for camping, waterproof windproof family tent with rainfly, divided curtain design for privacy space, portable with carry bag cabin tent">
+  <td class="kp"><img src="https://m.media-amazon.com/images/I/719tlK2rBaL._AC_SX679_.jpg" alt="" loading="lazy"><div><a href="" target="_blank" rel="noopener">8 Person Tent for Camping, Waterproof Windproof Family Tent with Rainfly, Divided Curtain Design for Privacy Space, Portable with Carry Bag</a><small>1 variant · camping equipment</small></div></td>
+  <td class="tags">outdoor, tent</td>
+  <td><span class="chip add" title="used by 8 similar market products; searching “cabin tent” doesn’t find it">+ cabin tent</span></td>
+  <td><span class="chip ok">instant</span></td>
+</tr>
+<tr data-q="grisport unisex&#x27;s saracen high rise hiking boots shoes">
+  <td class="kp"><img src="https://m.media-amazon.com/images/I/61C7DXnJKbL._AC_SY695_.jpg" alt="" loading="lazy"><div><a href="" target="_blank" rel="noopener">Grisport Unisex&#x27;s Saracen High Rise Hiking Boots</a><small>1 variant · shoes</small></div></td>
+  <td class="tags">outdoor, hiking boots</td>
+  <td><span class="chip add" title="used by 17 similar market products; searching “shoes hiking boots” doesn’t find it">+ shoes</span></td>
+  <td><span class="chip ok">backpacking</span><span class="chip ok">waterproof</span><span class="chip ok">trekking</span></td>
+</tr>
+<tr data-q="teton sports leef ultralight mummy sleeping bag perfect for backpacking, hiking, and camping; 3-4 season mummy bag; free stuff sack included ">
+  <td class="kp"><img src="https://m.media-amazon.com/images/I/61+TG6x0vBL._AC_SX679_.jpg" alt="" loading="lazy"><div><a href="" target="_blank" rel="noopener">TETON Sports LEEF Ultralight Mummy Sleeping Bag Perfect for Backpacking, Hiking, and Camping; 3-4 Season Mummy Bag; Free Stuff Sack Included</a><small>1 variant · camping gear</small></div></td>
+  <td class="tags">outdoor, sleeping bag</td>
+  <td><span class="none">none</span></td>
+  <td><span class="chip ok">lightweight</span></td>
+</tr>
+<tr data-q="asolo men&#x27;s high rise hiking shoes ">
+  <td class="kp"><img src="https://m.media-amazon.com/images/I/A1dhDKT73OL._AC_UX695_.jpg" alt="" loading="lazy"><div><a href="" target="_blank" rel="noopener">Asolo Men&#x27;s High Rise Hiking Shoes</a><small>1 variant · shoes</small></div></td>
+  <td class="tags">outdoor, hiking shoes</td>
+  <td><span class="none">none</span></td>
+  <td><span class="chip ok">waterproof hiking</span><span class="chip ok">hiking boots</span><span class="chip ok">trekking</span></td>
+</tr>
+<tr data-q="hanes men&#x27;s ecosmart jogger sweatpants, men&#x27;s midweight fleece lounge pants, 30.5&quot;&quot; ">
+  <td class="kp"><img src="https://m.media-amazon.com/images/I/61kQ0VWArCL._AC_SX679_.jpg" alt="" loading="lazy"><div><a href="" target="_blank" rel="noopener">Hanes Men&#x27;s EcoSmart Jogger Sweatpants, Men&#x27;s Midweight Fleece Lounge Pants, 30.5&quot;&quot;</a><small>1 variant · clothes</small></div></td>
+  <td class="tags">outdoor, joggers</td>
+  <td><span class="none">none</span></td>
+  <td><span class="chip ok">athletic</span><span class="chip ok">tech</span></td>
+</tr>
+<tr data-q="hihiker double sleeping bag queen size xl -for camping, hiking backpacking and cold weather, portable, waterproof and lightweight ">
+  <td class="kp"><img src="https://m.media-amazon.com/images/I/71hqC9ynqAL._AC_SX679_.jpg" alt="" loading="lazy"><div><a href="" target="_blank" rel="noopener">HiHiker Double Sleeping Bag Queen Size XL -for Camping, Hiking Backpacking and Cold Weather, Portable, Waterproof and Lightweight</a><small>1 variant · camping gear</small></div></td>
+  <td class="tags">outdoor, sleeping bag</td>
+  <td><span class="none">none</span></td>
+  <td><span class="chip ok">mummy sleeping</span></td>
+</tr>
+<tr data-q="portal 8 person family camping tent with screen porch, portable water resistant windproof cabin tent with rainfly, carry bag for family camping, outdoor hiking ">
+  <td class="kp"><img src="https://m.media-amazon.com/images/I/61GiP5YyNPL._AC_SX679_.jpg" alt="" loading="lazy"><div><a href="" target="_blank" rel="noopener">PORTAL 8 Person Family Camping Tent with Screen Porch, Portable Water Resistant Windproof Cabin Tent with Rainfly, Carry Bag for Family Camping, Outdoor Hiking</a><small>1 variant · camping equipment</small></div></td>
+  <td class="tags">outdoor, tent</td>
+  <td><span class="none">none</span></td>
+  <td><span class="chip ok">instant</span></td>
+</tr>
+<tr data-q="pro club men&#x27;s hoodie ">
+  <td class="kp"><img src="https://m.media-amazon.com/images/I/51OCw1vDKKL._AC_SY741_.jpg" alt="" loading="lazy"><div><a href="" target="_blank" rel="noopener">Pro Club Men&#x27;s Hoodie</a><small>1 variant · clothes</small></div></td>
+  <td class="tags">outdoor, hoodie</td>
+  <td><span class="none">none</span></td>
+  <td><span class="chip ok">sweatshirt</span><span class="chip ok">fleece</span></td>
+</tr>
+<tr data-q="nike women&#x27;s wildhorse 7 trail running shoes, cz1864-600 ">
+  <td class="kp"><img src="https://m.media-amazon.com/images/I/81qRwrUj6kL._AC_UX695_.jpg" alt="" loading="lazy"><div><a href="" target="_blank" rel="noopener">Nike Women&#x27;s Wildhorse 7 Trail Running Shoes, CZ1864-600</a><small>1 variant · shoes</small></div></td>
+  <td class="tags">outdoor, trail running shoes</td>
+  <td><span class="none">none</span></td>
+  <td><span class="chip ok">wide</span></td>
+</tr>
+<tr data-q="nortiv 8 women&#x27;s waterproof hiking boots outdoor trekking camping trail hiking boots ">
+  <td class="kp"><img src="https://m.media-amazon.com/images/I/81XlZdOTYjL._AC_SY695_.jpg" alt="" loading="lazy"><div><a href="" target="_blank" rel="noopener">NORTIV 8 Women&#x27;s Waterproof Hiking Boots Outdoor Trekking Camping Trail Hiking Boots</a><small>1 variant · shoes</small></div></td>
+  <td class="tags">outdoor, hiking boots</td>
+  <td><span class="none">none</span></td>
+  <td><span class="chip ok">backpacking</span><span class="chip ok">shoes</span></td>
+</tr>
+<tr data-q="dibbatu emergency survival sleeping bag, thermal bivy sack blanket, waterproof lightweight, mylar portable nylon sack for camping hiking outdoor adventure activities and help homeless people ">
+  <td class="kp"><img src="https://m.media-amazon.com/images/I/819OzSoP23S._AC_SX425_.jpg" alt="" loading="lazy"><div><a href="" target="_blank" rel="noopener">DIBBATU Emergency Survival Sleeping Bag, Thermal Bivy Sack Blanket, Waterproof Lightweight, Mylar Portable Nylon Sack for Camping Hiking Outdoor Adventure Activities and Help Homeless People</a><small>1 variant · camping gear</small></div></td>
+  <td class="tags">outdoor, sleeping bag</td>
+  <td><span class="none">none</span></td>
+  <td><span class="chip ok">mummy sleeping</span><span class="chip ok">backpacking</span></td>
+</tr>
+<tr data-q="12 pairs no show socks men women cotton socks low cut socks no show socks bulk liner socks ">
+  <td class="kp"><img src="https://m.media-amazon.com/images/I/61EZzExmnPL._AC_UX679_.jpg" alt="" loading="lazy"><div><a href="" target="_blank" rel="noopener">12 Pairs No Show Socks Men Women Cotton Socks Low Cut Socks No Show Socks Bulk Liner Socks</a><small>1 variant · clothes</small></div></td>
+  <td class="tags">outdoor, no show socks</td>
+  <td><span class="none">none</span></td>
+  <td><span class="chip ok">ankle socks</span><span class="chip ok">athletic</span><span class="chip ok">non slip</span></td>
+</tr>
+<tr data-q="core 12 person instant cabin tent camping tent family">
+  <td class="kp"><img src="https://m.media-amazon.com/images/I/51QlUVWkngL._AC_SY355_.jpg" alt="" loading="lazy"><div><a href="" target="_blank" rel="noopener">CORE 12 Person Instant Cabin Tent</a><small>1 variant · camping equipment</small></div></td>
+  <td class="tags">outdoor, tent</td>
+  <td><span class="chip add" title="used by 9 similar market products; searching “camping tent” doesn’t find it">+ camping tent</span><span class="chip add" title="used by 11 similar market products; searching “family tent” doesn’t find it">+ family</span></td>
+  <td></td>
+</tr>
+<tr data-q="brooks women&#x27;s cascadia 16 gtx running shoe ">
+  <td class="kp"><img src="https://m.media-amazon.com/images/I/81YiBWL5eOL._AC_SY500_.jpg" alt="" loading="lazy"><div><a href="" target="_blank" rel="noopener">Brooks Women&#x27;s Cascadia 16 GTX Running Shoe</a><small>1 variant · shoes</small></div></td>
+  <td class="tags">outdoor, running shoes</td>
+  <td><span class="none">none</span></td>
+  <td><span class="chip ok">sneaker</span></td>
+</tr>
+<tr data-q="nike performance cushion quarter socks with bag crew socks athletic cotton">
+  <td class="kp"><img src="https://m.media-amazon.com/images/I/91L-u6eDEhL._AC_SX679_.jpg" alt="" loading="lazy"><div><a href="" target="_blank" rel="noopener">NIKE Performance Cushion Quarter Socks with Bag</a><small>1 variant · socks</small></div></td>
+  <td class="tags">outdoor, socks</td>
+  <td><span class="chip add" title="used by 13 similar market products; searching “crew socks” doesn’t find it">+ crew socks</span><span class="chip add" title="used by 4 similar market products; searching “athletic socks” doesn’t find it">+ athletic</span><span class="chip add" title="used by 4 similar market products; searching “cotton socks” doesn’t find it">+ cotton</span></td>
+  <td></td>
+</tr>
+<tr data-q="frelaxy sleeping bag liner, xl travel sheet &amp; camping sheet for backpacking, hotel, hostels &amp; traveling, comfy &amp; easy care, full-length zipper/no zipper ">
+  <td class="kp"><img src="https://m.media-amazon.com/images/I/61yUgIRhiaL._AC_SX679_.jpg" alt="" loading="lazy"><div><a href="" target="_blank" rel="noopener">Frelaxy Sleeping Bag Liner, XL Travel Sheet &amp; Camping Sheet for Backpacking, Hotel, Hostels &amp; Traveling, Comfy &amp; Easy Care, Full-Length Zipper/No Zipper</a><small>1 variant · camping gear</small></div></td>
+  <td class="tags">outdoor, sleeping bag</td>
+  <td><span class="none">none</span></td>
+  <td><span class="chip ok">mummy sleeping</span><span class="chip ok">lightweight</span><span class="chip ok">hiking</span></td>
+</tr>
+<tr data-q="brooks women&#x27;s ghost 15 neutral running shoe ">
+  <td class="kp"><img src="https://m.media-amazon.com/images/I/71VKftEnVcL._AC_UY695_.jpg" alt="" loading="lazy"><div><a href="" target="_blank" rel="noopener">Brooks Women&#x27;s Ghost 15 Neutral Running Shoe</a><small>1 variant · shoes</small></div></td>
+  <td class="tags">outdoor, running shoes</td>
+  <td><span class="none">none</span></td>
+  <td><span class="chip ok">sneaker</span></td>
+</tr>
+<tr data-q="unp tents 6 person waterproof windproof easy setup,double layer family camping tent with 1 mesh door &amp; 5 large mesh windows -10&#x27;x9&#x27;x78in cabin tent instant">
+  <td class="kp"><img src="https://m.media-amazon.com/images/I/61zicMJJp9L._AC_SX679_.jpg" alt="" loading="lazy"><div><a href="" target="_blank" rel="noopener">UNP Tents 6 Person Waterproof Windproof Easy Setup,Double Layer Family Camping Tent with 1 Mesh Door &amp; 5 Large Mesh Windows -10&#x27;X9&#x27;X78in</a><small>1 variant · camping equipment</small></div></td>
+  <td class="tags">outdoor, tent</td>
+  <td><span class="chip add" title="used by 8 similar market products; searching “cabin tent” doesn’t find it">+ cabin tent</span><span class="chip add" title="used by 11 similar market products; searching “instant tent” doesn’t find it">+ instant</span></td>
+  <td></td>
+</tr>
+<tr data-q="carhartt classic mini backpack, durable, water-resistant backpack with adjustable shoulder straps, wine ">
+  <td class="kp"><img src="https://m.media-amazon.com/images/I/91aILBog-mL._AC_SX679_.jpg" alt="" loading="lazy"><div><a href="" target="_blank" rel="noopener">Carhartt Classic Mini Backpack, Durable, Water-Resistant Backpack with Adjustable Shoulder Straps, Wine</a><small>1 variant · bags</small></div></td>
+  <td class="tags">outdoor, backpack</td>
+  <td><span class="none">none</span></td>
+  <td><span class="chip ok">lightweight</span></td>
+</tr>
+<tr data-q="nike everyday plus cushion low socks 6-pair pack athletic cotton">
+  <td class="kp"><img src="https://m.media-amazon.com/images/I/61DwgZPqKoL._AC_SX522_.jpg" alt="" loading="lazy"><div><a href="" target="_blank" rel="noopener">Nike Everyday Plus Cushion Low Socks 6-Pair Pack</a><small>1 variant · socks</small></div></td>
+  <td class="tags">outdoor, socks</td>
+  <td><span class="chip add" title="used by 4 similar market products; searching “athletic socks” doesn’t find it">+ athletic</span><span class="chip add" title="used by 4 similar market products; searching “cotton socks” doesn’t find it">+ cotton</span></td>
+  <td><span class="chip ok">crew socks</span></td>
+</tr>
+<tr data-q="hiking boots womens waterproof womens hiking boots backpacking boots hiking shoes breathable non-slip durable hiking boots for outdoors ">
+  <td class="kp"><img src="https://m.media-amazon.com/images/I/81VA4dKtUxL._AC_UY695_.jpg" alt="" loading="lazy"><div><a href="" target="_blank" rel="noopener">Hiking Boots Womens Waterproof Womens Hiking Boots Backpacking Boots Hiking Shoes Breathable Non-slip Durable Hiking Boots for Outdoors</a><small>1 variant · shoes</small></div></td>
+  <td class="tags">outdoor, hiking boots</td>
+  <td><span class="none">none</span></td>
+  <td><span class="chip ok">trekking</span></td>
+</tr>
+<tr data-q="4 person pop up tents for camping cabin tent family">
+  <td class="kp"><img src="https://m.media-amazon.com/images/I/611SAY+EMeL._AC_SX679_.jpg" alt="" loading="lazy"><div><a href="" target="_blank" rel="noopener">4 Person Pop Up Tents for Camping</a><small>1 variant · camping equipment</small></div></td>
+  <td class="tags">outdoor, tent</td>
+  <td><span class="chip add" title="used by 8 similar market products; searching “cabin tent” doesn’t find it">+ cabin tent</span><span class="chip add" title="used by 11 similar market products; searching “family tent” doesn’t find it">+ family</span></td>
+  <td><span class="chip ok">instant</span></td>
+</tr>
+<tr data-q="amazon essentials women&#x27;s casual crew socks, 6 pairs performance cushioned">
+  <td class="kp"><img src="https://m.media-amazon.com/images/I/91aSzlQPl9L._AC_UX679_.jpg" alt="" loading="lazy"><div><a href="" target="_blank" rel="noopener">Amazon Essentials Women&#x27;s Casual Crew Socks, 6 Pairs</a><small>1 variant · socks</small></div></td>
+  <td class="tags">outdoor, crew socks</td>
+  <td><span class="chip add" title="used by 4 similar market products; searching “performance crew socks” doesn’t find it">+ performance</span><span class="chip add" title="used by 13 similar market products; searching “cushioned crew socks” doesn’t find it">+ cushioned</span></td>
+  <td><span class="chip ok">cotton</span></td>
+</tr>
+<tr data-q="hikergarden 10 person camping tent instant">
+  <td class="kp"><img src="https://m.media-amazon.com/images/I/61xCAMriQCL._AC_SX679_.jpg" alt="" loading="lazy"><div><a href="" target="_blank" rel="noopener">HIKERGARDEN 10 Person Camping Tent</a><small>1 variant · camping equipment</small></div></td>
+  <td class="tags">outdoor, tent</td>
+  <td><span class="chip add" title="used by 11 similar market products; searching “instant tent” doesn’t find it">+ instant</span></td>
+  <td><span class="chip ok">cabin tent</span><span class="chip ok">family</span></td>
+</tr>
+<tr data-q="brooks men&#x27;s ghost 15 sneaker ">
+  <td class="kp"><img src="https://m.media-amazon.com/images/I/71XjYtwZNRL._AC_SY695_.jpg" alt="" loading="lazy"><div><a href="" target="_blank" rel="noopener">Brooks Men&#x27;s Ghost 15 Sneaker</a><small>1 variant · shoes</small></div></td>
+  <td class="tags">outdoor, sneakers</td>
+  <td><span class="none">none</span></td>
+  <td><span class="chip ok">shoes</span></td>
+</tr>
+<tr data-q="hanes men&#x27;s ecosmart fleece sweatshirt, cotton-blend pullover, crewneck sweatshirt for men, 1 or 2 pack available ">
+  <td class="kp"><img src="https://m.media-amazon.com/images/I/81ntuce4ZlL._AC_SX679_.jpg" alt="" loading="lazy"><div><a href="" target="_blank" rel="noopener">Hanes Men&#x27;s Ecosmart Fleece Sweatshirt, Cotton-blend Pullover, Crewneck Sweatshirt for Men, 1 Or 2 Pack Available</a><small>1 variant · clothes</small></div></td>
+  <td class="tags">outdoor, sweatshirt</td>
+  <td><span class="none">none</span></td>
+  <td><span class="chip ok">breathable</span></td>
+</tr>
+<tr data-q="nike men&#x27;s sportswear club full zip hoodie ">
+  <td class="kp"><img src="https://m.media-amazon.com/images/I/61PV2gxo1EL._AC_SX679_.jpg" alt="" loading="lazy"><div><a href="" target="_blank" rel="noopener">NIKE Men&#x27;s Sportswear Club Full Zip Hoodie</a><small>1 variant · clothes</small></div></td>
+  <td class="tags">outdoor, hoodie</td>
+  <td><span class="none">none</span></td>
+  <td><span class="chip ok">sweatshirt</span><span class="chip ok">fleece</span></td>
+</tr>
+<tr data-q="48 pairs thin low cut ankle socks for men comfortable lightweight breathable bulk pack wholesale ">
+  <td class="kp"><img src="https://m.media-amazon.com/images/I/91Alr+DncnL._AC_SX679_.jpg" alt="" loading="lazy"><div><a href="" target="_blank" rel="noopener">48 Pairs Thin Low Cut Ankle Socks for Men Comfortable Lightweight Breathable Bulk Pack Wholesale</a><small>1 variant · clothes</small></div></td>
+  <td class="tags">outdoor, ankle socks</td>
+  <td><span class="none">none</span></td>
+  <td><span class="chip ok">cushioned</span><span class="chip ok">athletic</span></td>
+</tr>
+<tr data-q="campros cp 3 person tent cabin tent instant family">
+  <td class="kp"><img src="https://m.media-amazon.com/images/I/51KLSR5Kw-L._AC_SX679_.jpg" alt="" loading="lazy"><div><a href="" target="_blank" rel="noopener">CAMPROS CP 3 Person Tent</a><small>1 variant · camping equipment</small></div></td>
+  <td class="tags">outdoor, tent</td>
+  <td><span class="chip add" title="used by 8 similar market products; searching “cabin tent” doesn’t find it">+ cabin tent</span><span class="chip add" title="used by 11 similar market products; searching “instant tent” doesn’t find it">+ instant</span><span class="chip add" title="used by 11 similar market products; searching “family tent” doesn’t find it">+ family</span></td>
+  <td></td>
+</tr>
+<tr data-q="women hiking boots waterproof mid work shoes lace up suede leather walking trekking mountain outdoor ">
+  <td class="kp"><img src="https://m.media-amazon.com/images/I/81INP6LOuAL._AC_UY695_.jpg" alt="" loading="lazy"><div><a href="" target="_blank" rel="noopener">Women Hiking Boots Waterproof Mid Work Shoes Lace Up Suede Leather Walking Trekking Mountain Outdoor</a><small>1 variant · shoes</small></div></td>
+  <td class="tags">outdoor, hiking boots</td>
+  <td><span class="none">none</span></td>
+  <td><span class="chip ok">backpacking</span></td>
+</tr>
+<tr data-q="core 6 person instant cabin tent camping tent">
+  <td class="kp"><img src="https://m.media-amazon.com/images/I/51L7HMRfM3L._AC_SX679_.jpg" alt="" loading="lazy"><div><a href="" target="_blank" rel="noopener">CORE 6 Person Instant Cabin Tent</a><small>1 variant · camping equipment</small></div></td>
+  <td class="tags">outdoor, tent</td>
+  <td><span class="chip add" title="used by 9 similar market products; searching “camping tent” doesn’t find it">+ camping tent</span></td>
+  <td><span class="chip ok">family</span></td>
+</tr>
+<tr data-q="adidas men&#x27;s athletic cushioned crew socks with arch compression for a secure fit cotton">
+  <td class="kp"><img src="https://m.media-amazon.com/images/I/91B9rKVd7jL._AC_SX679_.jpg" alt="" loading="lazy"><div><a href="" target="_blank" rel="noopener">adidas Men&#x27;s Athletic Cushioned Crew Socks with Arch Compression for a Secure Fit</a><small>1 variant · socks</small></div></td>
+  <td class="tags">outdoor, crew socks</td>
+  <td><span class="chip add" title="used by 4 similar market products; searching “cotton crew socks” doesn’t find it">+ cotton</span></td>
+  <td><span class="chip ok">performance</span></td>
+</tr>
+<tr data-q="coleman 6-person weathermaster tent ">
+  <td class="kp"><img src="https://m.media-amazon.com/images/I/71FwdoPn2bL._AC_SX679_.jpg" alt="" loading="lazy"><div><a href="" target="_blank" rel="noopener">Coleman 6-Person WeatherMaster Tent</a><small>1 variant · camping equipment</small></div></td>
+  <td class="tags">outdoor, tent</td>
+  <td><span class="none">none</span></td>
+  <td><span class="chip ok">camping tent</span><span class="chip ok">cabin tent</span><span class="chip ok">instant</span><span class="chip ok">family</span></td>
+</tr>
+<tr data-q="pair of thieves men’s athletic performance socks ">
+  <td class="kp"><img src="https://m.media-amazon.com/images/I/81kQGxSMrRL._AC_UX679_.jpg" alt="" loading="lazy"><div><a href="" target="_blank" rel="noopener">Pair of Thieves Men’s Athletic Performance Socks</a><small>1 variant · socks</small></div></td>
+  <td class="tags">outdoor, socks</td>
+  <td><span class="none">none</span></td>
+  <td><span class="chip ok">crew socks</span><span class="chip ok">cushioned</span><span class="chip ok">cotton</span></td>
+</tr>
+<tr data-q="hanes men&#x27;s hoodie, ecosmart fleece full-zip hoodie, zip-up hooded sweatshirt for men ">
+  <td class="kp"><img src="https://m.media-amazon.com/images/I/81rqN4rxW2L._AC_SX679_.jpg" alt="" loading="lazy"><div><a href="" target="_blank" rel="noopener">Hanes Men&#x27;s Hoodie, Ecosmart Fleece Full-zip Hoodie, Zip-up Hooded Sweatshirt for Men</a><small>1 variant · clothes</small></div></td>
+  <td class="tags">outdoor, hoodie</td>
+  <td><span class="none">none</span></td>
+  <td><span class="chip ok">club</span></td>
+</tr>
+<tr data-q="snugpak basecamp ops sleeper extreme sleeping bag, 19 degree, insulated, olive ">
+  <td class="kp"><img src="https://m.media-amazon.com/images/I/717gDntUDSL._AC_SY879_.jpg" alt="" loading="lazy"><div><a href="" target="_blank" rel="noopener">Snugpak Basecamp Ops Sleeper Extreme Sleeping Bag, 19 Degree, Insulated, Olive</a><small>1 variant · camping gear</small></div></td>
+  <td class="tags">outdoor, sleeping bag</td>
+  <td><span class="none">none</span></td>
+  <td><span class="chip ok">mummy sleeping</span><span class="chip ok">lightweight</span><span class="chip ok">backpacking</span><span class="chip ok">camping</span><span class="chip ok">hiking</span></td>
+</tr>
+<tr data-q="hanes men&#x27;s sweatpants, ultimate cotton fleece sweatpants, joggers with pockets for men ">
+  <td class="kp"><img src="https://m.media-amazon.com/images/I/61Z6BGprKcL._AC_SX679_.jpg" alt="" loading="lazy"><div><a href="" target="_blank" rel="noopener">Hanes Men&#x27;s Sweatpants, Ultimate Cotton Fleece Sweatpants, Joggers with Pockets for Men</a><small>1 variant · clothes</small></div></td>
+  <td class="tags">outdoor, sweatpants</td>
+  <td><span class="none">none</span></td>
+  <td><span class="chip ok">wide leg</span><span class="chip ok">athletic</span><span class="chip ok">pants</span></td>
+</tr>
+<tr data-q="fruit of the loom men&#x27;s eversoft cotton stay tucked crew t-shirt ">
+  <td class="kp"><img src="https://m.media-amazon.com/images/I/51OijIFUO9L._AC_UY879_.jpg" alt="" loading="lazy"><div><a href="" target="_blank" rel="noopener">Fruit of the Loom Men&#x27;s Eversoft Cotton Stay Tucked Crew T-Shirt</a><small>1 variant · clothes</small></div></td>
+  <td class="tags">outdoor, t shirt</td>
+  <td><span class="none">none</span></td>
+  <td><span class="chip ok">essentials</span><span class="chip ok">crewneck</span><span class="chip ok">t-shirt</span></td>
+</tr>
+<tr data-q="12&#x27;x10&#x27;x8&#x27;dome camping tent 5-6 person 4 season double layers waterproof anti-uv windproof tents family outdoor camping tent cabin tent instant">
+  <td class="kp"><img src="https://m.media-amazon.com/images/I/619txAZh+2L._AC_SX679_.jpg" alt="" loading="lazy"><div><a href="" target="_blank" rel="noopener">12&#x27;x10&#x27;x8&#x27;Dome Camping Tent 5-6 Person 4 Season Double Layers Waterproof Anti-UV Windproof Tents Family Outdoor Camping Tent</a><small>1 variant · camping equipment</small></div></td>
+  <td class="tags">outdoor, tent</td>
+  <td><span class="chip add" title="used by 8 similar market products; searching “cabin tent” doesn’t find it">+ cabin tent</span><span class="chip add" title="used by 11 similar market products; searching “instant tent” doesn’t find it">+ instant</span></td>
+  <td></td>
+</tr>
+<tr data-q="dubinik® mens flannel shirts long sleeve flannel shirt for men casual button down brushed 100% cotton shirt essentials crewneck t-shirt">
+  <td class="kp"><img src="https://m.media-amazon.com/images/I/814m5ZAyKxL._AC_SX679_.jpg" alt="" loading="lazy"><div><a href="" target="_blank" rel="noopener">Dubinik® Mens Flannel Shirts Long Sleeve Flannel Shirt for Men Casual Button Down Brushed 100% Cotton Shirt</a><small>1 variant · clothes</small></div></td>
+  <td class="tags">outdoor, shirt</td>
+  <td><span class="chip add" title="used by 3 similar market products; searching “essentials shirt” doesn’t find it">+ essentials</span><span class="chip add" title="used by 4 similar market products; searching “crewneck shirt” doesn’t find it">+ crewneck</span><span class="chip add" title="used by 11 similar market products; searching “t-shirt” doesn’t find it">+ t-shirt</span></td>
+  <td><span class="chip ok">breathable</span></td>
+</tr>
+<tr data-q="teton sports leef mummy sleeping bag ">
+  <td class="kp"><img src="https://m.media-amazon.com/images/I/61zmAXWdg6L._AC_SY450_.jpg" alt="" loading="lazy"><div><a href="" target="_blank" rel="noopener">TETON Sports Leef Mummy Sleeping Bag</a><small>1 variant · camping gear</small></div></td>
+  <td class="tags">outdoor, sleeping bag</td>
+  <td><span class="none">none</span></td>
+  <td><span class="chip ok">lightweight</span><span class="chip ok">backpacking</span><span class="chip ok">camping</span><span class="chip ok">hiking</span></td>
+</tr>
+<tr data-q="hanes men&#x27;s essentials t-shirt pack, crewneck cotton t-shirts for men, 4 or 6 pack available ">
+  <td class="kp"><img src="https://m.media-amazon.com/images/I/612OCczgZHL._AC_SX679_.jpg" alt="" loading="lazy"><div><a href="" target="_blank" rel="noopener">Hanes Men&#x27;s Essentials T-shirt Pack, Crewneck Cotton T-shirts for Men, 4 Or 6 Pack Available</a><small>1 variant · clothes</small></div></td>
+  <td class="tags">outdoor, t shirt</td>
+  <td><span class="none">none</span></td>
+  <td><span class="chip ok">t-shirt</span></td>
+</tr>
+<tr data-q="desert &amp; fox cotton flannel sleeping bags with pillow, 4 season warm &amp; cold weather envelope compression sack, lightweight &amp; portable backpacking sleeping bag for outdoor camping, hiking, traveling ">
+  <td class="kp"><img src="https://m.media-amazon.com/images/I/61ynRmHVLtL._AC_SX679_.jpg" alt="" loading="lazy"><div><a href="" target="_blank" rel="noopener">Desert &amp; Fox Cotton Flannel Sleeping Bags with Pillow, 4 Season Warm &amp; Cold Weather Envelope Compression Sack, Lightweight &amp; Portable Backpacking Sleeping Bag for Outdoor Camping, Hiking, Traveling</a><small>1 variant · camping gear</small></div></td>
+  <td class="tags">outdoor, sleeping bag</td>
+  <td><span class="none">none</span></td>
+  <td><span class="chip ok">mummy sleeping</span></td>
+</tr>
+<tr data-q="nike men&#x27;s dri-fit training cotton cushioned crew socks ">
+  <td class="kp"><img src="https://m.media-amazon.com/images/I/71Uck7gi96L._AC_UY879_.jpg" alt="" loading="lazy"><div><a href="" target="_blank" rel="noopener">Nike Men&#x27;s Dri-Fit Training Cotton Cushioned Crew Socks</a><small>1 variant · socks</small></div></td>
+  <td class="tags">outdoor, crew socks</td>
+  <td><span class="none">none</span></td>
+  <td><span class="chip ok">performance</span></td>
+</tr>
+<tr data-q="under armour hustle sport backpack ">
+  <td class="kp"><img src="https://m.media-amazon.com/images/I/51Ye9RDrR3L._AC_SX679_.jpg" alt="" loading="lazy"><div><a href="" target="_blank" rel="noopener">Under Armour Hustle Sport Backpack</a><small>1 variant · bags</small></div></td>
+  <td class="tags">outdoor, backpack</td>
+  <td><span class="none">none</span></td>
+  <td><span class="chip ok">lightweight</span></td>
+</tr>
+<tr data-q="hydrojug half gallon water bottle 64oz ">
+  <td class="kp"><img src="https://m.media-amazon.com/images/I/4173Ix-wPIL._AC_SX425_.jpg" alt="" loading="lazy"><div><a href="" target="_blank" rel="noopener">HydroJug Half Gallon Water Bottle 64oz</a><small>1 variant · drinkware</small></div></td>
+  <td class="tags">outdoor, water bottle</td>
+  <td><span class="none">none</span></td>
+  <td><span class="chip ok">sports</span></td>
+</tr>
+<tr data-q="coach backpack in signature canvas one size ">
+  <td class="kp"><img src="https://m.media-amazon.com/images/I/61va2MIAX1L._AC_SX679_.jpg" alt="" loading="lazy"><div><a href="" target="_blank" rel="noopener">COACH Backpack In Signature Canvas One Size</a><small>1 variant · bags</small></div></td>
+  <td class="tags">outdoor, backpack</td>
+  <td><span class="none">none</span></td>
+  <td><span class="chip ok">lightweight</span></td>
+</tr>
+<tr data-q="echosmile camping instant tent, 2/4/6/8/10 person pop up tent, water resistant dome tent, easy setup for camping hiking and outdoor, portable tent with carry bag, for 3 seasons… ">
+  <td class="kp"><img src="https://m.media-amazon.com/images/I/51yRAryjdBL._AC_SX679_.jpg" alt="" loading="lazy"><div><a href="" target="_blank" rel="noopener">EchoSmile Camping Instant Tent, 2/4/6/8/10 Person Pop Up Tent, Water Resistant Dome Tent, Easy Setup for Camping Hiking and Outdoor, Portable Tent with Carry Bag, for 3 Seasons…</a><small>1 variant · camping equipment</small></div></td>
+  <td class="tags">outdoor, tent</td>
+  <td><span class="none">none</span></td>
+  <td><span class="chip ok">cabin tent</span><span class="chip ok">family</span></td>
+</tr>
+<tr data-q="48 pairs womens low cut ankle socks, comfortable lightweight breathable athletic bulk pack wholesale ">
+  <td class="kp"><img src="https://m.media-amazon.com/images/I/91kD2NT-hoL._AC_UX679_.jpg" alt="" loading="lazy"><div><a href="" target="_blank" rel="noopener">48 Pairs Womens Low Cut Ankle Socks, Comfortable Lightweight Breathable Athletic Bulk Pack Wholesale</a><small>1 variant · clothes</small></div></td>
+  <td class="tags">outdoor, ankle socks</td>
+  <td><span class="none">none</span></td>
+  <td><span class="chip ok">cushioned</span></td>
+</tr>
+<tr data-q="asics womens running shoes ">
+  <td class="kp"><img src="https://m.media-amazon.com/images/I/615-tDoNbYL._AC_UY695_.jpg" alt="" loading="lazy"><div><a href="" target="_blank" rel="noopener">ASICS womens Running Shoes</a><small>1 variant · shoes</small></div></td>
+  <td class="tags">outdoor, running shoes</td>
+  <td><span class="none">none</span></td>
+  <td><span class="chip ok">sneaker</span></td>
+</tr>
+<tr data-q="columbia men&#x27;s peakfreak venture waterproof wide hiking shoe ">
+  <td class="kp"><img src="https://m.media-amazon.com/images/I/513JMWlZgtL._AC_SX395_.jpg" alt="" loading="lazy"><div><a href="" target="_blank" rel="noopener">Columbia Men&#x27;s Peakfreak Venture Waterproof Wide Hiking Shoe</a><small>1 variant · shoes</small></div></td>
+  <td class="tags">outdoor, hiking shoes</td>
+  <td><span class="none">none</span></td>
+  <td><span class="chip ok">hiking boots</span><span class="chip ok">trekking</span></td>
+</tr>
+<tr data-q="gildan men&#x27;s heavy cotton t-shirt, style g5000, 2-pack ">
+  <td class="kp"><img src="https://m.media-amazon.com/images/I/61lDolpjTRL._AC_SX679_.jpg" alt="" loading="lazy"><div><a href="" target="_blank" rel="noopener">Gildan Men&#x27;s Heavy Cotton T-Shirt, Style G5000, 2-Pack</a><small>1 variant · clothes</small></div></td>
+  <td class="tags">outdoor, t shirt</td>
+  <td><span class="none">none</span></td>
+  <td><span class="chip ok">essentials</span><span class="chip ok">crewneck</span><span class="chip ok">t-shirt</span></td>
+</tr>
+<tr data-q="nike performance cushion quarter training socks crew socks athletic cotton">
+  <td class="kp"><img src="https://m.media-amazon.com/images/I/61OTS2-KWQL._AC_SX342_.jpg" alt="" loading="lazy"><div><a href="" target="_blank" rel="noopener">NIKE Performance Cushion Quarter Training Socks</a><small>1 variant · socks</small></div></td>
+  <td class="tags">outdoor, socks</td>
+  <td><span class="chip add" title="used by 13 similar market products; searching “crew socks” doesn’t find it">+ crew socks</span><span class="chip add" title="used by 4 similar market products; searching “athletic socks” doesn’t find it">+ athletic</span><span class="chip add" title="used by 4 similar market products; searching “cotton socks” doesn’t find it">+ cotton</span></td>
+  <td></td>
+</tr>
+<tr data-q="speedo unisex plain moulded silicone swimming cap ">
+  <td class="kp"><img src="https://m.media-amazon.com/images/I/41pIlxTHMzL._AC_SX522_.jpg" alt="" loading="lazy"><div><a href="" target="_blank" rel="noopener">Speedo Unisex Plain Moulded Silicone Swimming Cap</a><small>1 variant · hats</small></div></td>
+  <td class="tags">outdoor, cap</td>
+  <td><span class="none">none</span></td>
+  <td><span class="chip ok">angeles dodgers</span><span class="chip ok">los angeles</span><span class="chip ok">basic</span></td>
+</tr>
+<tr data-q="outson mens fashion joggers sports pants casual cotton cargo pants gym sweatpants trousers mens long pant ">
+  <td class="kp"><img src="https://m.media-amazon.com/images/I/61ZZnIuZYFL._AC_SY879_.jpg" alt="" loading="lazy"><div><a href="" target="_blank" rel="noopener">OUTSON Mens Fashion Joggers Sports Pants Casual Cotton Cargo Pants Gym Sweatpants Trousers Mens Long Pant</a><small>1 variant · clothes</small></div></td>
+  <td class="tags">outdoor, joggers</td>
+  <td><span class="none">none</span></td>
+  <td><span class="chip ok">athletic</span></td>
+</tr>
+<tr data-q="3-6 pack womens crew lightweight thin casual calf socks size 6-11 cushioned">
+  <td class="kp"><img src="https://m.media-amazon.com/images/I/71TZjXEyIvL._AC_UX679_.jpg" alt="" loading="lazy"><div><a href="" target="_blank" rel="noopener">3-6 Pack Womens Crew Lightweight Thin Casual Calf Socks Size 6-11</a><small>1 variant · clothes</small></div></td>
+  <td class="tags">outdoor, socks</td>
+  <td><span class="chip add" title="used by 5 similar market products; searching “cushioned socks” doesn’t find it">+ cushioned</span></td>
+  <td><span class="chip ok">ankle socks</span><span class="chip ok">breathable</span><span class="chip ok">athletic</span></td>
+</tr>
+<tr data-q="ciays camping tent, waterproof family tent with removable rainfly and carry bag, lightweight tent with stakes for camping, traveling, backpacking, hiking, outdoors instant">
+  <td class="kp"><img src="https://m.media-amazon.com/images/I/615bL4hFXkL._AC_SX679_.jpg" alt="" loading="lazy"><div><a href="" target="_blank" rel="noopener">Ciays Camping Tent, Waterproof Family Tent with Removable Rainfly and Carry Bag, Lightweight Tent with Stakes for Camping, Traveling, Backpacking, Hiking, Outdoors</a><small>1 variant · camping equipment</small></div></td>
+  <td class="tags">outdoor, tent</td>
+  <td><span class="chip add" title="used by 11 similar market products; searching “instant tent” doesn’t find it">+ instant</span></td>
+  <td><span class="chip ok">cabin tent</span></td>
+</tr>
+<tr data-q="asics nimbus 25 lite-show road running shoe for woman blue yellow ">
+  <td class="kp"><img src="https://m.media-amazon.com/images/I/61emHCWBPbL._AC_SY695_.jpg" alt="" loading="lazy"><div><a href="" target="_blank" rel="noopener">ASICS Nimbus 25 Lite-Show Road Running Shoe for Woman Blue Yellow</a><small>1 variant · shoes</small></div></td>
+  <td class="tags">outdoor, running shoes</td>
+  <td><span class="none">none</span></td>
+  <td><span class="chip ok">sneaker</span></td>
+</tr>
+<tr data-q="coleman skydome camping tent with dark room technology, 4/6/8/10 person family tent sets up in 5 minutes and blocks 90% of sunlight, weatherproof tent with extra storage and ventilation cabin tent instant">
+  <td class="kp"><img src="https://m.media-amazon.com/images/I/71ptwCPOJJL._AC_SX679_.jpg" alt="" loading="lazy"><div><a href="" target="_blank" rel="noopener">Coleman Skydome Camping Tent with Dark Room Technology, 4/6/8/10 Person Family Tent Sets Up in 5 Minutes and Blocks 90% of Sunlight, Weatherproof Tent with Extra Storage and Ventilation</a><small>1 variant · camping equipment</small></div></td>
+  <td class="tags">outdoor, tent</td>
+  <td><span class="chip add" title="used by 8 similar market products; searching “cabin tent” doesn’t find it">+ cabin tent</span><span class="chip add" title="used by 11 similar market products; searching “instant tent” doesn’t find it">+ instant</span></td>
+  <td></td>
+</tr>
+<tr data-q="brooks women&#x27;s ghost 15 sneaker shoes">
+  <td class="kp"><img src="https://m.media-amazon.com/images/I/71Ki6J6OTuL._AC_SY695_.jpg" alt="" loading="lazy"><div><a href="" target="_blank" rel="noopener">Brooks Women&#x27;s Ghost 15 Sneaker</a><small>1 variant · shoes</small></div></td>
+  <td class="tags">outdoor, sneakers</td>
+  <td><span class="chip add" title="used by 5 similar market products; searching “shoes sneakers” doesn’t find it">+ shoes</span></td>
+  <td></td>
+</tr>
+<tr data-q="under armour unisex hustle 5.0 backpack ">
+  <td class="kp"><img src="https://m.media-amazon.com/images/I/51VMa+iPDjL._AC_SX679_.jpg" alt="" loading="lazy"><div><a href="" target="_blank" rel="noopener">Under Armour Unisex Hustle 5.0 Backpack</a><small>1 variant · bags</small></div></td>
+  <td class="tags">outdoor, backpack</td>
+  <td><span class="none">none</span></td>
+  <td><span class="chip ok">lightweight</span></td>
+</tr>
+<tr data-q="rockrooster newland hiking boots for men- green, 6&#x27;&#x27; waterproof non-slip outdoor mountaineering boots, ankle, anti-fatigue, comfortable, shock absorption ">
+  <td class="kp"><img src="https://m.media-amazon.com/images/I/81GT9uA+3UL._AC_UY695_.jpg" alt="" loading="lazy"><div><a href="" target="_blank" rel="noopener">ROCKROOSTER Newland Hiking Boots for Men- Green, 6&#x27;&#x27; Waterproof Non-Slip Outdoor Mountaineering Boots, Ankle, Anti-Fatigue, Comfortable, Shock Absorption</a><small>1 variant · shoes</small></div></td>
+  <td class="tags">outdoor, hiking boots</td>
+  <td><span class="none">none</span></td>
+  <td><span class="chip ok">trekking</span><span class="chip ok">shoes</span></td>
+</tr>
+<tr data-q="nike hoops elite backpack royal ">
+  <td class="kp"><img src="https://m.media-amazon.com/images/I/61vBcFW4XQL._AC_SX679_.jpg" alt="" loading="lazy"><div><a href="" target="_blank" rel="noopener">Nike Hoops Elite Backpack Royal</a><small>1 variant · bags</small></div></td>
+  <td class="tags">outdoor, backpack</td>
+  <td><span class="none">none</span></td>
+  <td><span class="chip ok">lightweight</span></td>
+</tr>
+<tr data-q="hanes men&#x27;s hanes men&#x27;s socks, x-temp cushioned crew socks, 12-pack performance cotton">
+  <td class="kp"><img src="https://m.media-amazon.com/images/I/619CjC1kXaL._AC_SY879_.jpg" alt="" loading="lazy"><div><a href="" target="_blank" rel="noopener">Hanes Men&#x27;s Hanes Men&#x27;s Socks, X-temp Cushioned Crew Socks, 12-pack</a><small>1 variant · socks</small></div></td>
+  <td class="tags">outdoor, socks</td>
+  <td><span class="chip add" title="used by 3 similar market products; searching “performance crew socks” doesn’t find it">+ performance</span><span class="chip add" title="used by 4 similar market products; searching “cotton crew socks” doesn’t find it">+ cotton</span></td>
+  <td></td>
+</tr>
+<tr data-q="tactical day pack backpack for everyday ">
+  <td class="kp"><img src="https://m.media-amazon.com/images/I/91dwi3d68IL._AC_SY741_.jpg" alt="" loading="lazy"><div><a href="" target="_blank" rel="noopener">Tactical Day Pack Backpack for Everyday</a><small>1 variant · bags</small></div></td>
+  <td class="tags">outdoor, backpack</td>
+  <td><span class="none">none</span></td>
+  <td><span class="chip ok">lightweight</span></td>
+</tr>
+<tr data-q="60 pairs men ankle socks low cut sports tab socks no show breathable casual socks thin athletic short sock bulk ">
+  <td class="kp"><img src="https://m.media-amazon.com/images/I/81uOJe-E7pL._AC_SX342_.jpg" alt="" loading="lazy"><div><a href="" target="_blank" rel="noopener">60 Pairs Men Ankle Socks Low Cut Sports Tab Socks No Show Breathable Casual Socks Thin Athletic Short Sock Bulk</a><small>1 variant · clothes</small></div></td>
+  <td class="tags">outdoor, ankle socks</td>
+  <td><span class="none">none</span></td>
+  <td><span class="chip ok">lightweight</span><span class="chip ok">cushioned</span></td>
+</tr>
+<tr data-q="zooobelives ultralight backpacking 32-50f down sleeping bag ">
+  <td class="kp"><img src="https://m.media-amazon.com/images/I/7107x+dgoYL._AC_SX679_.jpg" alt="" loading="lazy"><div><a href="" target="_blank" rel="noopener">ZOOOBELIVES Ultralight Backpacking 32-50F Down Sleeping Bag</a><small>1 variant · camping gear</small></div></td>
+  <td class="tags">outdoor, sleeping bag</td>
+  <td><span class="none">none</span></td>
+  <td><span class="chip ok">mummy sleeping</span><span class="chip ok">lightweight</span><span class="chip ok">camping</span><span class="chip ok">hiking</span></td>
+</tr>
+<tr data-q="amazon essentials men&#x27;s closed bottom fleece sweatpants ">
+  <td class="kp"><img src="https://m.media-amazon.com/images/I/71gmp+RaB9L._AC_SY879_.jpg" alt="" loading="lazy"><div><a href="" target="_blank" rel="noopener">Amazon Essentials Men&#x27;s Closed Bottom Fleece Sweatpants</a><small>1 variant · clothes</small></div></td>
+  <td class="tags">outdoor, sweatpants</td>
+  <td><span class="none">none</span></td>
+  <td><span class="chip ok">jogger sweatpants</span><span class="chip ok">wide leg</span><span class="chip ok">athletic</span><span class="chip ok">pants</span></td>
+</tr>
+<tr data-q="nike dri-fit cushion low-cut training socks, 6-pairs crew socks cotton">
+  <td class="kp"><img src="https://m.media-amazon.com/images/I/71BgujMNQzL._AC_SX679_.jpg" alt="" loading="lazy"><div><a href="" target="_blank" rel="noopener">Nike Dri-FIT Cushion Low-Cut Training Socks, 6-pairs</a><small>1 variant · socks</small></div></td>
+  <td class="tags">outdoor, socks</td>
+  <td><span class="chip add" title="used by 13 similar market products; searching “crew socks” doesn’t find it">+ crew socks</span><span class="chip add" title="used by 4 similar market products; searching “cotton socks” doesn’t find it">+ cotton</span></td>
+  <td><span class="chip ok">athletic</span></td>
+</tr>
+<tr data-q="aelfric eden mens graphic oversized hoodie cartoon character print streetwear casual hoodies y2k hooded sweatshirt ">
+  <td class="kp"><img src="https://m.media-amazon.com/images/I/51UdBh+o6eL._AC_UX679_.jpg" alt="" loading="lazy"><div><a href="" target="_blank" rel="noopener">Aelfric Eden Mens Graphic Oversized Hoodie Cartoon Character Print Streetwear Casual hoodies y2k Hooded Sweatshirt</a><small>1 variant · clothes</small></div></td>
+  <td class="tags">outdoor, hoodie</td>
+  <td><span class="none">none</span></td>
+  <td><span class="chip ok">fleece</span><span class="chip ok">club</span></td>
+</tr>
+<tr data-q="nike men&#x27;s everyday plus cushion crew socks medium ">
+  <td class="kp"><img src="https://m.media-amazon.com/images/I/61q3MlILGhL._AC_SX522_.jpg" alt="" loading="lazy"><div><a href="" target="_blank" rel="noopener">Nike Men&#x27;s Everyday Plus Cushion Crew Socks Medium</a><small>1 variant · socks</small></div></td>
+  <td class="tags">outdoor, crew socks</td>
+  <td><span class="none">none</span></td>
+  <td><span class="chip ok">performance</span><span class="chip ok">cotton</span></td>
+</tr>
+<tr data-q="women&#x27;s mid lightweight outdoor hiking boots ">
+  <td class="kp"><img src="https://m.media-amazon.com/images/I/71bVPsvRAHL._AC_SY500_.jpg" alt="" loading="lazy"><div><a href="" target="_blank" rel="noopener">Women&#x27;s Mid Lightweight Outdoor Hiking Boots</a><small>1 variant · shoes</small></div></td>
+  <td class="tags">outdoor, hiking boots</td>
+  <td><span class="none">none</span></td>
+  <td><span class="chip ok">backpacking</span><span class="chip ok">waterproof</span><span class="chip ok">trekking</span><span class="chip ok">shoes</span></td>
+</tr>
+<tr data-q="pro club men&#x27;s heavyweight full zip fleece hoodie ">
+  <td class="kp"><img src="https://m.media-amazon.com/images/I/81tjsf5jkLL._AC_SX679_.jpg" alt="" loading="lazy"><div><a href="" target="_blank" rel="noopener">Pro Club Men&#x27;s Heavyweight Full Zip Fleece Hoodie</a><small>1 variant · clothes</small></div></td>
+  <td class="tags">outdoor, hoodie</td>
+  <td><span class="none">none</span></td>
+  <td><span class="chip ok">sweatshirt</span></td>
+</tr>
+<tr data-q="kelty tru.comfort doublewide 20 degree sleeping bag ">
+  <td class="kp"><img src="https://m.media-amazon.com/images/I/715v8e0PJAL._AC_SX679_.jpg" alt="" loading="lazy"><div><a href="" target="_blank" rel="noopener">Kelty Tru.Comfort Doublewide 20 Degree Sleeping Bag</a><small>1 variant · camping gear</small></div></td>
+  <td class="tags">outdoor, sleeping bag</td>
+  <td><span class="none">none</span></td>
+  <td><span class="chip ok">mummy sleeping</span><span class="chip ok">lightweight</span><span class="chip ok">backpacking</span><span class="chip ok">camping</span><span class="chip ok">hiking</span></td>
+</tr>
+<tr data-q="adidas energy backpack ">
+  <td class="kp"><img src="https://m.media-amazon.com/images/I/81Cq4Qk9aQL._AC_UX679_.jpg" alt="" loading="lazy"><div><a href="" target="_blank" rel="noopener">adidas Energy Backpack</a><small>1 variant · bags</small></div></td>
+  <td class="tags">outdoor, backpack</td>
+  <td><span class="none">none</span></td>
+  <td><span class="chip ok">lightweight</span></td>
+</tr>
+<tr data-q="jmierr mens casual joggers pants ">
+  <td class="kp"><img src="https://m.media-amazon.com/images/I/61GwBbU3oqL._AC_UY879_.jpg" alt="" loading="lazy"><div><a href="" target="_blank" rel="noopener">JMIERR Mens Casual Joggers Pants</a><small>1 variant · clothes</small></div></td>
+  <td class="tags">outdoor, joggers</td>
+  <td><span class="none">none</span></td>
+  <td><span class="chip ok">jogger sweatpants</span><span class="chip ok">cargo pants</span><span class="chip ok">athletic</span></td>
+</tr>
+<tr data-q="3 pcs men&#x27;s oversized heavy cotton summer t-shirts vintage tee loose fit short sleeve casual tshirts for men women ">
+  <td class="kp"><img src="https://m.media-amazon.com/images/I/71InQyE-w8L._AC_SX679_.jpg" alt="" loading="lazy"><div><a href="" target="_blank" rel="noopener">3 Pcs Men&#x27;s Oversized Heavy Cotton Summer T-Shirts Vintage Tee Loose Fit Short Sleeve Casual Tshirts for Men Women</a><small>1 variant · clothes</small></div></td>
+  <td class="tags">outdoor, t shirt</td>
+  <td><span class="none">none</span></td>
+  <td><span class="chip ok">essentials</span><span class="chip ok">crewneck</span></td>
+</tr>
+<tr data-q="nike hoops elite backpack ">
+  <td class="kp"><img src="https://m.media-amazon.com/images/I/51lm-hTQIML._AC_SY879_.jpg" alt="" loading="lazy"><div><a href="" target="_blank" rel="noopener">Nike Hoops Elite Backpack</a><small>1 variant · bags</small></div></td>
+  <td class="tags">outdoor, backpack</td>
+  <td><span class="none">none</span></td>
+  <td><span class="chip ok">lightweight</span></td>
+</tr>
+<tr data-q="hanes women&#x27;s value socks, no show soft moisture-wicking socks, available in 10 and 14-packs lightweight ankle socks crew socks cushioned">
+  <td class="kp"><img src="https://m.media-amazon.com/images/I/61S+lmzNGNL._AC_SX679_.jpg" alt="" loading="lazy"><div><a href="" target="_blank" rel="noopener">Hanes Women&#x27;s Value Socks, No Show Soft Moisture-Wicking Socks, Available in 10 and 14-Packs</a><small>1 variant · clothes</small></div></td>
+  <td class="tags">outdoor, socks</td>
+  <td><span class="chip add" title="used by 7 similar market products; searching “lightweight socks” doesn’t find it">+ lightweight</span><span class="chip add" title="used by 3 similar market products; searching “ankle socks” doesn’t find it">+ ankle socks</span><span class="chip add" title="used by 11 similar market products; searching “crew socks” doesn’t find it">+ crew socks</span><span class="chip add" title="used by 5 similar market products; searching “cushioned socks” doesn’t find it">+ cushioned</span></td>
+  <td><span class="chip ok">breathable</span></td>
+</tr>
+<tr data-q="women&#x27;s hiking boots lace up ankle boots mid outdoor non slip backpacking trekking mountaineering trail shoes ">
+  <td class="kp"><img src="https://m.media-amazon.com/images/I/81j-5V0jeeL._AC_UY695_.jpg" alt="" loading="lazy"><div><a href="" target="_blank" rel="noopener">Women&#x27;s Hiking Boots Lace up Ankle Boots Mid Outdoor Non Slip Backpacking Trekking Mountaineering Trail Shoes</a><small>1 variant · shoes</small></div></td>
+  <td class="tags">outdoor, hiking boots</td>
+  <td><span class="none">none</span></td>
+  <td><span class="chip ok">waterproof</span></td>
+</tr>
+<tr data-q="ozark trail hazel creek 16 person family cabin tent ">
+  <td class="kp"><img src="https://m.media-amazon.com/images/I/71k-VVBmb9L._AC_SX679_.jpg" alt="" loading="lazy"><div><a href="" target="_blank" rel="noopener">Ozark Trail Hazel Creek 16 Person Family Cabin Tent</a><small>1 variant · camping equipment</small></div></td>
+  <td class="tags">outdoor, tent</td>
+  <td><span class="none">none</span></td>
+  <td><span class="chip ok">camping tent</span><span class="chip ok">instant</span></td>
+</tr>
+<tr data-q="southpole men&#x27;s basic stretch twill jogger pants-reg and big &amp; tall sizes ">
+  <td class="kp"><img src="https://m.media-amazon.com/images/I/61rLasqJvRL._AC_UY879_.jpg" alt="" loading="lazy"><div><a href="" target="_blank" rel="noopener">Southpole Men&#x27;s Basic Stretch Twill Jogger Pants-Reg and Big &amp; Tall Sizes</a><small>1 variant · clothes</small></div></td>
+  <td class="tags">outdoor, joggers</td>
+  <td><span class="none">none</span></td>
+  <td><span class="chip ok">jogger sweatpants</span><span class="chip ok">athletic</span><span class="chip ok">tech</span></td>
+</tr>
+<tr data-q="camping tent 2 person, waterproof windproof tent with rainfly easy set up-portable dome tents for camping cabin tent instant family">
+  <td class="kp"><img src="https://m.media-amazon.com/images/I/61dAOAtdC+L._AC_SX679_.jpg" alt="" loading="lazy"><div><a href="" target="_blank" rel="noopener">Camping Tent 2 Person, Waterproof Windproof Tent with Rainfly Easy Set up-Portable Dome Tents for Camping</a><small>1 variant · camping equipment</small></div></td>
+  <td class="tags">outdoor, tent</td>
+  <td><span class="chip add" title="used by 8 similar market products; searching “cabin tent” doesn’t find it">+ cabin tent</span><span class="chip add" title="used by 11 similar market products; searching “instant tent” doesn’t find it">+ instant</span><span class="chip add" title="used by 11 similar market products; searching “family tent” doesn’t find it">+ family</span></td>
+  <td></td>
+</tr>
+<tr data-q="nike men&#x27;s sportswear club pullover hoodie ">
+  <td class="kp"><img src="https://m.media-amazon.com/images/I/61Xp-6XC8nL._AC_SX679_.jpg" alt="" loading="lazy"><div><a href="" target="_blank" rel="noopener">Nike Men&#x27;s Sportswear Club Pullover Hoodie</a><small>1 variant · clothes</small></div></td>
+  <td class="tags">outdoor, hoodie</td>
+  <td><span class="none">none</span></td>
+  <td><span class="chip ok">sweatshirt</span><span class="chip ok">fleece</span></td>
+</tr>
+<tr data-q="asics women&#x27;s gel-contend 8 running shoes ">
+  <td class="kp"><img src="https://m.media-amazon.com/images/I/613LGaIjQAL._AC_SY500_.jpg" alt="" loading="lazy"><div><a href="" target="_blank" rel="noopener">ASICS Women&#x27;s Gel-Contend 8 Running Shoes</a><small>1 variant · shoes</small></div></td>
+  <td class="tags">outdoor, running shoes</td>
+  <td><span class="none">none</span></td>
+  <td><span class="chip ok">sneaker</span></td>
+</tr>
+<tr data-q="southpole men&#x27;s 1570 basic active fleece jogger sweatpants ">
+  <td class="kp"><img src="https://m.media-amazon.com/images/I/611uoD6XDIL._AC_SX679_.jpg" alt="" loading="lazy"><div><a href="" target="_blank" rel="noopener">Southpole Men&#x27;s 1570 Basic Active Fleece Jogger Sweatpants</a><small>1 variant · clothes</small></div></td>
+  <td class="tags">outdoor, joggers</td>
+  <td><span class="none">none</span></td>
+  <td><span class="chip ok">athletic</span><span class="chip ok">pants</span><span class="chip ok">tech</span></td>
+</tr>
+<tr data-q="nike men&#x27;s hoodie ">
+  <td class="kp"><img src="https://m.media-amazon.com/images/I/51KbcJScxtL._AC_SX679_.jpg" alt="" loading="lazy"><div><a href="" target="_blank" rel="noopener">Nike Men&#x27;s Hoodie</a><small>1 variant · clothes</small></div></td>
+  <td class="tags">outdoor, hoodie</td>
+  <td><span class="none">none</span></td>
+  <td><span class="chip ok">sweatshirt</span><span class="chip ok">fleece</span><span class="chip ok">club</span></td>
+</tr>
+<tr data-q="hyeta 32oz water bottles with straw ">
+  <td class="kp"><img src="https://m.media-amazon.com/images/I/71vqTHnWjxL._AC_SX679_.jpg" alt="" loading="lazy"><div><a href="" target="_blank" rel="noopener">Hyeta 32oz Water Bottles with Straw</a><small>1 variant · drinkware</small></div></td>
+  <td class="tags">outdoor, water bottle</td>
+  <td><span class="none">none</span></td>
+  <td><span class="chip ok">sports</span></td>
+</tr>
+<tr data-q="nike sportswear men&#x27;s pullover club hoodie ">
+  <td class="kp"><img src="https://m.media-amazon.com/images/I/51cB8iGPJZL._AC_SY879_.jpg" alt="" loading="lazy"><div><a href="" target="_blank" rel="noopener">NIKE Sportswear Men&#x27;s Pullover Club Hoodie</a><small>1 variant · clothes</small></div></td>
+  <td class="tags">outdoor, hoodie</td>
+  <td><span class="none">none</span></td>
+  <td><span class="chip ok">sweatshirt</span><span class="chip ok">fleece</span></td>
+</tr>
+<tr data-q="naturehike ultralight sleeping bag ">
+  <td class="kp"><img src="https://m.media-amazon.com/images/I/61gSsp6-TCL._AC_SX679_.jpg" alt="" loading="lazy"><div><a href="" target="_blank" rel="noopener">Naturehike Ultralight Sleeping Bag</a><small>1 variant · camping gear</small></div></td>
+  <td class="tags">outdoor, sleeping bag</td>
+  <td><span class="none">none</span></td>
+  <td><span class="chip ok">mummy sleeping</span><span class="chip ok">lightweight</span><span class="chip ok">backpacking</span><span class="chip ok">camping</span><span class="chip ok">hiking</span></td>
+</tr>
+<tr data-q="pro club men&#x27;s 6-pack heavyweight cotton short sleeve crew neck t-shirt running">
+  <td class="kp"><img src="https://m.media-amazon.com/images/I/71Pd6xsTcvL._AC_SX679_.jpg" alt="" loading="lazy"><div><a href="" target="_blank" rel="noopener">Pro Club Men&#x27;s 6-Pack Heavyweight Cotton Short Sleeve Crew Neck T-Shirt</a><small>1 variant · clothes</small></div></td>
+  <td class="tags">outdoor, shorts</td>
+  <td><span class="chip add" title="used by 5 similar market products; searching “running shorts” doesn’t find it">+ running</span></td>
+  <td><span class="chip ok">athletic</span><span class="chip ok">workout</span></td>
+</tr>
+    </table></div>
+    <a class="dl" href="keywords.csv" download>Download keywords as CSV ↓</a>
+  </section>
+
+  <section class="block" id="search">
+    <h2>Search QA</h2>
+    <p class="sub">The kinds of product you sell and the most common missing keywords, searched in your own catalog. For a kind of product, “weak” means fewer than 3 of your top 5 results are that kind. For a descriptive word, it means fewer than 2 of your top 5 results mention it: shoppers who search it won’t see what they asked for.</p>
+    <div class="card scroll"><table class="qa">
+      <tr><th>Search</th><th>Result</th><th>Your top results</th></tr>
+      <tr><td><b>performance</b></td><td><span class="flag under">Weak</span><div class="qnote">1 of top 5 mention “performance”</div></td><td class="qhits"><span class="qhit" title="Pro Club Men&#x27;s 6-Pack Heavyweight Cotton Short Sleeve Crew Neck T-Shirt"><img src="https://m.media-amazon.com/images/I/71Pd6xsTcvL._AC_SX679_.jpg" alt="" loading="lazy"><span>Pro Club Men&#x27;s 6-Pack Heavyweight Cott</span></span><span class="qhit" title="Nike Hoops Elite Backpack (32L) (2023)"><img src="https://m.media-amazon.com/images/I/51lm-hTQIML._AC_SY879_.jpg" alt="" loading="lazy"><span>Nike Hoops Elite Backpack (32L) (2023)</span></span><span class="qhit" title="48 Pairs Thin Low Cut Ankle Socks for Men Comfortable Lightweight Breathable Bulk Pack Wholesale"><img src="https://m.media-amazon.com/images/I/91Alr+DncnL._AC_SX679_.jpg" alt="" loading="lazy"><span>48 Pairs Thin Low Cut Ankle Socks for </span></span></td></tr>
+<tr><td><b>athletic</b></td><td><span class="flag ok">Good</span><div class="qnote">3 of top 5 mention “athletic”</div></td><td class="qhits"><span class="qhit" title="BROKIG Mens Gym Jogger Pants,Casual Slim Workout Sweatpants with Zipper Pockets Bodybuilding Athletic Pants"><img src="https://m.media-amazon.com/images/I/51E-5SUrFNL._AC_UX679_.jpg" alt="" loading="lazy"><span>BROKIG Mens Gym Jogger Pants,Casual Sl</span></span><span class="qhit" title="adidas Men&#x27;s Athletic Cushioned Quarter Socks (with Arch Compression for a Secure Fit (6-Pair)"><img src="https://m.media-amazon.com/images/I/81hNGGETHXL._AC_UX679_.jpg" alt="" loading="lazy"><span>adidas Men&#x27;s Athletic Cushioned Quarte</span></span><span class="qhit" title="Hanes Men&#x27;s Sweatpants, Ultimate Cotton Fleece Sweatpants, Joggers with Pockets for Men"><img src="https://m.media-amazon.com/images/I/61Z6BGprKcL._AC_SX679_.jpg" alt="" loading="lazy"><span>Hanes Men&#x27;s Sweatpants, Ultimate Cotto</span></span></td></tr>
+<tr><td><b>backpack</b></td><td><span class="flag ok">Good</span><div class="qnote">5 of top 5 are bags</div></td><td class="qhits"><span class="qhit" title="Nike Hoops Elite Backpack (32L) (2023)"><img src="https://m.media-amazon.com/images/I/51lm-hTQIML._AC_SY879_.jpg" alt="" loading="lazy"><span>Nike Hoops Elite Backpack (32L) (2023)</span></span><span class="qhit" title="Nike Hoops Elite Backpack Gray"><img src="https://m.media-amazon.com/images/I/51dL2HltZcL._AC_SX425_.jpg" alt="" loading="lazy"><span>Nike Hoops Elite Backpack Gray</span></span><span class="qhit" title="COACH Backpack In Signature Canvas One Size"><img src="https://m.media-amazon.com/images/I/61va2MIAX1L._AC_SX679_.jpg" alt="" loading="lazy"><span>COACH Backpack In Signature Canvas One</span></span></td></tr>
+<tr><td><b>cabin tent</b></td><td><span class="flag ok">Good</span><div class="qnote">5 of top 5 are tent</div></td><td class="qhits"><span class="qhit" title="AsterOutdoor 6 Person Cabin Tent Instant Setup Tent, Waterproof Family Camping Tent, 60 Sec. Easy Set Up for Car Camping Hiking Outdoor Adventure, Large Space &amp; Extra Tall"><img src="https://m.media-amazon.com/images/I/71S1hE8DzgL._AC_SX679_.jpg" alt="" loading="lazy"><span>AsterOutdoor 6 Person Cabin Tent Insta</span></span><span class="qhit" title="Ozark Trail 16x16-Feet 12-Person 3 Room Instant Cabin Tent with Pre-Attached Poles"><img src="https://m.media-amazon.com/images/I/51yIOh0WP5L._AC_.jpg" alt="" loading="lazy"><span>Ozark Trail 16x16-Feet 12-Person 3 Roo</span></span><span class="qhit" title="BeyondHOME Instant Cabin Tent, 4 Person/6 Person Camping Tent Setup in 60 Seconds with Rainfly &amp; Windproof Tent with Carry Bag for Family Camping &amp; Hiking, Upgraded Ventilation"><img src="https://m.media-amazon.com/images/I/61YOWRNcysL._AC_SY355_.jpg" alt="" loading="lazy"><span>BeyondHOME Instant Cabin Tent, 4 Perso</span></span></td></tr>
+<tr><td><b>cotton</b></td><td><span class="flag ok">Good</span><div class="qnote">5 of top 5 mention “cotton”</div></td><td class="qhits"><span class="qhit" title="Gildan Men&#x27;s Heavy Cotton T-Shirt, Style G5000, 2-Pack"><img src="https://m.media-amazon.com/images/I/61lDolpjTRL._AC_SX679_.jpg" alt="" loading="lazy"><span>Gildan Men&#x27;s Heavy Cotton T-Shirt, Sty</span></span><span class="qhit" title="Fruit of the Loom Men&#x27;s Eversoft Cotton Stay Tucked Crew T-Shirt"><img src="https://m.media-amazon.com/images/I/51OijIFUO9L._AC_UY879_.jpg" alt="" loading="lazy"><span>Fruit of the Loom Men&#x27;s Eversoft Cotto</span></span><span class="qhit" title="Hanes Men&#x27;s Sweatpants, Ultimate Cotton Fleece Sweatpants, Joggers with Pockets for Men"><img src="https://m.media-amazon.com/images/I/61Z6BGprKcL._AC_SX679_.jpg" alt="" loading="lazy"><span>Hanes Men&#x27;s Sweatpants, Ultimate Cotto</span></span></td></tr>
+<tr><td><b>crew socks</b></td><td><span class="flag ok">Good</span><div class="qnote">5 of top 5 are socks</div></td><td class="qhits"><span class="qhit" title="Nike Everyday Plus Cushion Crew Socks 3-Pair Pack"><img src="https://m.media-amazon.com/images/I/91gBa-qKp7L._AC_UX679_.jpg" alt="" loading="lazy"><span>Nike Everyday Plus Cushion Crew Socks </span></span><span class="qhit" title="Nike Everyday Plus Cushioned Training Crew Socks (6 Pack)"><img src="https://m.media-amazon.com/images/I/81NwnwzcrKL._AC_SX679_.jpg" alt="" loading="lazy"><span>Nike Everyday Plus Cushioned Training </span></span><span class="qhit" title="Premium Cotton Crew Cut Socks (6 Pack)"><img src="https://m.media-amazon.com/images/I/61JzoGfNHFL._AC_SX679_.jpg" alt="" loading="lazy"><span>Premium Cotton Crew Cut Socks (6 Pack)</span></span></td></tr>
+<tr><td><b>cushioned</b></td><td><span class="flag ok">Good</span><div class="qnote">3 of top 5 mention “cushioned”</div></td><td class="qhits"><span class="qhit" title="Premium Cotton Crew Cut Socks (6 Pack)"><img src="https://m.media-amazon.com/images/I/61JzoGfNHFL._AC_SX679_.jpg" alt="" loading="lazy"><span>Premium Cotton Crew Cut Socks (6 Pack)</span></span><span class="qhit" title="Nike unisex-child Everyday Cushioned Crew Socks"><img src="https://m.media-amazon.com/images/I/81PbfbQkCXL._AC_SX679_.jpg" alt="" loading="lazy"><span>Nike unisex-child Everyday Cushioned C</span></span><span class="qhit" title="Nike Performance Cushion Crew Training Socks"><img src="https://m.media-amazon.com/images/I/71lyRhEmZaL._AC_SX679_.jpg" alt="" loading="lazy"><span>Nike Performance Cushion Crew Training</span></span></td></tr>
+<tr><td><b>family</b></td><td><span class="flag ok">Good</span><div class="qnote">4 of top 5 mention “family”</div></td><td class="qhits"><span class="qhit" title="PORTAL 8 Person Family Camping Tent with Screen Porch, Portable Water Resistant Windproof Cabin Tent with Rainfly, Carry Bag for Family Camping, Outdoor Hiking"><img src="https://m.media-amazon.com/images/I/61GiP5YyNPL._AC_SX679_.jpg" alt="" loading="lazy"><span>PORTAL 8 Person Family Camping Tent wi</span></span><span class="qhit" title="Ciays Camping Tent, Waterproof Family Tent with Removable Rainfly and Carry Bag, Lightweight Tent with Stakes for Camping, Traveling, Backpacking, Hiking, Outdoors"><img src="https://m.media-amazon.com/images/I/615bL4hFXkL._AC_SX679_.jpg" alt="" loading="lazy"><span>Ciays Camping Tent, Waterproof Family </span></span><span class="qhit" title="Happy Travel Tent 6 Person Tents for Camping, Waterproof Easy Setup Camping Tent with Rainfly, Portable Large Family Cabin Tent with 5 Large Mesh Windows and Carry Bag for Outdoor Camping &amp; Hiking"><img src="https://m.media-amazon.com/images/I/61SALLf22zL._AC_SX679_.jpg" alt="" loading="lazy"><span>Happy Travel Tent 6 Person Tents for C</span></span></td></tr>
+<tr><td><b>hiking boots</b></td><td><span class="flag ok">Good</span><div class="qnote">5 of top 5 are footwear</div></td><td class="qhits"><span class="qhit" title="Asolo Men&#x27;s High Rise Hiking Shoes"><img src="https://m.media-amazon.com/images/I/A1dhDKT73OL._AC_UX695_.jpg" alt="" loading="lazy"><span>Asolo Men&#x27;s High Rise Hiking Shoes</span></span><span class="qhit" title="Women&#x27;s Mid Lightweight Outdoor Hiking Boots"><img src="https://m.media-amazon.com/images/I/71bVPsvRAHL._AC_SY500_.jpg" alt="" loading="lazy"><span>Women&#x27;s Mid Lightweight Outdoor Hiking</span></span><span class="qhit" title="NORTIV 8 Women&#x27;s Waterproof Hiking Boots Outdoor Trekking Camping Trail Hiking Boots"><img src="https://m.media-amazon.com/images/I/81XlZdOTYjL._AC_SY695_.jpg" alt="" loading="lazy"><span>NORTIV 8 Women&#x27;s Waterproof Hiking Boo</span></span></td></tr>
+<tr><td><b>hoodie</b></td><td><span class="flag ok">Good</span><div class="qnote">5 of top 5 are tops</div></td><td class="qhits"><span class="qhit" title="Aelfric Eden Mens Graphic Oversized Hoodie Cartoon Character Print Streetwear Casual hoodies y2k Hooded Sweatshirt"><img src="https://m.media-amazon.com/images/I/51UdBh+o6eL._AC_UX679_.jpg" alt="" loading="lazy"><span>Aelfric Eden Mens Graphic Oversized Ho</span></span><span class="qhit" title="Men&#x27;s Sportswear Club Fleece Hoodie"><img src="https://m.media-amazon.com/images/I/61Xp-6XC8nL._AC_SX679_.jpg" alt="" loading="lazy"><span>Men&#x27;s Sportswear Club Fleece Hoodie</span></span><span class="qhit" title="Pro Club Men&#x27;s Hoodie"><img src="https://m.media-amazon.com/images/I/51OCw1vDKKL._AC_SY741_.jpg" alt="" loading="lazy"><span>Pro Club Men&#x27;s Hoodie</span></span></td></tr>
+<tr><td><b>instant</b></td><td><span class="flag ok">Good</span><div class="qnote">5 of top 5 mention “instant”</div></td><td class="qhits"><span class="qhit" title="Ozark Trail 10-Person Dark Rest Instant Cabin Tent"><img src="https://m.media-amazon.com/images/I/51wdX0yki5L._AC_SX679_.jpg" alt="" loading="lazy"><span>Ozark Trail 10-Person Dark Rest Instan</span></span><span class="qhit" title="Ozark Trail 16x16-Feet 12-Person 3 Room Instant Cabin Tent with Pre-Attached Poles"><img src="https://m.media-amazon.com/images/I/51yIOh0WP5L._AC_.jpg" alt="" loading="lazy"><span>Ozark Trail 16x16-Feet 12-Person 3 Roo</span></span><span class="qhit" title="EchoSmile Camping Instant Tent, 2/4/6/8/10 Person Pop Up Tent, Water Resistant Dome Tent, Easy Setup for Camping Hiking and Outdoor, Portable Tent with Carry Bag, for 3 Seasons…"><img src="https://m.media-amazon.com/images/I/51yRAryjdBL._AC_SX679_.jpg" alt="" loading="lazy"><span>EchoSmile Camping Instant Tent, 2/4/6/</span></span></td></tr>
+<tr><td><b>joggers</b></td><td><span class="flag ok">Good</span><div class="qnote">5 of top 5 are bottoms</div></td><td class="qhits"><span class="qhit" title="Hanes Men&#x27;s EcoSmart Jogger Sweatpants, Men&#x27;s Midweight Fleece Lounge Pants, 30.5&quot;&quot;"><img src="https://m.media-amazon.com/images/I/61kQ0VWArCL._AC_SX679_.jpg" alt="" loading="lazy"><span>Hanes Men&#x27;s EcoSmart Jogger Sweatpants</span></span><span class="qhit" title="Real Essentials 3 Pack: Men&#x27;s Fleece Elastic Bottom Jogger Sweatpants with Pockets (Available in Big &amp; Tall)"><img src="https://m.media-amazon.com/images/I/81A9SLlsENL._AC_UX679_.jpg" alt="" loading="lazy"><span>Real Essentials 3 Pack: Men&#x27;s Fleece E</span></span><span class="qhit" title="Hanes Men&#x27;s Sweatpants, Ultimate Cotton Fleece Sweatpants, Joggers with Pockets for Men"><img src="https://m.media-amazon.com/images/I/61Z6BGprKcL._AC_SX679_.jpg" alt="" loading="lazy"><span>Hanes Men&#x27;s Sweatpants, Ultimate Cotto</span></span></td></tr>
+<tr><td><b>pants</b></td><td><span class="flag ok">Good</span><div class="qnote">5 of top 5 are bottoms</div></td><td class="qhits"><span class="qhit" title="Hanes Men&#x27;s EcoSmart Jogger Sweatpants, Men&#x27;s Midweight Fleece Lounge Pants, 30.5&quot;&quot;"><img src="https://m.media-amazon.com/images/I/61kQ0VWArCL._AC_SX679_.jpg" alt="" loading="lazy"><span>Hanes Men&#x27;s EcoSmart Jogger Sweatpants</span></span><span class="qhit" title="Real Essentials 3 Pack: Men&#x27;s Fleece Elastic Bottom Jogger Sweatpants with Pockets (Available in Big &amp; Tall)"><img src="https://m.media-amazon.com/images/I/81A9SLlsENL._AC_UX679_.jpg" alt="" loading="lazy"><span>Real Essentials 3 Pack: Men&#x27;s Fleece E</span></span><span class="qhit" title="JMIERR Mens Casual Joggers Pants - Cotton Drawstring Chino Cargo Pants Hiking Outdoor Twill Track Jogging Sweatpants Pants"><img src="https://m.media-amazon.com/images/I/61GwBbU3oqL._AC_UY879_.jpg" alt="" loading="lazy"><span>JMIERR Mens Casual Joggers Pants - Cot</span></span></td></tr>
+<tr><td><b>running</b></td><td><span class="flag ok">Good</span><div class="qnote">5 of top 5 mention “running”</div></td><td class="qhits"><span class="qhit" title="ASICS Nimbus 25 Road Running Shoe for Man Green Fluorescent"><img src="https://m.media-amazon.com/images/I/51ygdamyf3L._AC_UY695_.jpg" alt="" loading="lazy"><span>ASICS Nimbus 25 Road Running Shoe for </span></span><span class="qhit" title="ASICS Nimbus 24 Road Running Shoe for Man Azure Green"><img src="https://m.media-amazon.com/images/I/51pWNdIXjiL._AC_SY500_.jpg" alt="" loading="lazy"><span>ASICS Nimbus 24 Road Running Shoe for </span></span><span class="qhit" title="Brooks Women&#x27;s Revel 5 Running Shoe"><img src="https://m.media-amazon.com/images/I/81IlHytajCL._AC_SY575_.jpg" alt="" loading="lazy"><span>Brooks Women&#x27;s Revel 5 Running Shoe</span></span></td></tr>
+<tr><td><b>running shoes</b></td><td><span class="flag ok">Good</span><div class="qnote">5 of top 5 are footwear</div></td><td class="qhits"><span class="qhit" title="ASICS Nimbus 24 Road Running Shoe for Man Azure Green"><img src="https://m.media-amazon.com/images/I/51pWNdIXjiL._AC_SY500_.jpg" alt="" loading="lazy"><span>ASICS Nimbus 24 Road Running Shoe for </span></span><span class="qhit" title="ASICS Nimbus 25 Lite-Show Road Running Shoe for Woman Blue Yellow"><img src="https://m.media-amazon.com/images/I/61emHCWBPbL._AC_SY695_.jpg" alt="" loading="lazy"><span>ASICS Nimbus 25 Lite-Show Road Running</span></span><span class="qhit" title="ASICS Nimbus 25 Road Running Shoe for Man Green Fluorescent"><img src="https://m.media-amazon.com/images/I/51ygdamyf3L._AC_UY695_.jpg" alt="" loading="lazy"><span>ASICS Nimbus 25 Road Running Shoe for </span></span></td></tr>
+<tr><td><b>shoes</b></td><td><span class="flag ok">Good</span><div class="qnote">5 of top 5 are footwear</div></td><td class="qhits"><span class="qhit" title="ASICS Nimbus 25 Lite-Show Road Running Shoe for Woman Blue Yellow"><img src="https://m.media-amazon.com/images/I/61emHCWBPbL._AC_SY695_.jpg" alt="" loading="lazy"><span>ASICS Nimbus 25 Lite-Show Road Running</span></span><span class="qhit" title="ASICS Nimbus 25 Road Running Shoe for Man Green Fluorescent"><img src="https://m.media-amazon.com/images/I/51ygdamyf3L._AC_UY695_.jpg" alt="" loading="lazy"><span>ASICS Nimbus 25 Road Running Shoe for </span></span><span class="qhit" title="Brooks Women&#x27;s Ghost 15 GTX Sneaker"><img src="https://m.media-amazon.com/images/I/710NY1ul6yL._AC_UY695_.jpg" alt="" loading="lazy"><span>Brooks Women&#x27;s Ghost 15 GTX Sneaker</span></span></td></tr>
+<tr><td><b>shorts</b></td><td><span class="flag ok">Good</span><div class="qnote">3 of top 5 are bottoms</div></td><td class="qhits"><span class="qhit" title="Pro Club Men&#x27;s 6-Pack Heavyweight Cotton Short Sleeve Crew Neck T-Shirt"><img src="https://m.media-amazon.com/images/I/71Pd6xsTcvL._AC_SX679_.jpg" alt="" loading="lazy"><span>Pro Club Men&#x27;s 6-Pack Heavyweight Cott</span></span><span class="qhit" title="48 Pairs Thin Low Cut Ankle Socks for Men Comfortable Lightweight Breathable Bulk Pack Wholesale"><img src="https://m.media-amazon.com/images/I/91Alr+DncnL._AC_SX679_.jpg" alt="" loading="lazy"><span>48 Pairs Thin Low Cut Ankle Socks for </span></span><span class="qhit" title="Nike Hoops Elite Backpack (32L) (2023)"><img src="https://m.media-amazon.com/images/I/51lm-hTQIML._AC_SY879_.jpg" alt="" loading="lazy"><span>Nike Hoops Elite Backpack (32L) (2023)</span></span></td></tr>
+<tr><td><b>sleeping bag</b></td><td><span class="flag ok">Good</span><div class="qnote">5 of top 5 are bags</div></td><td class="qhits"><span class="qhit" title="TETON Sports LEEF Ultralight Mummy Sleeping Bag Perfect for Backpacking, Hiking, and Camping; 3-4 Season Mummy Bag; Free Stuff Sack Included"><img src="https://m.media-amazon.com/images/I/61+TG6x0vBL._AC_SX679_.jpg" alt="" loading="lazy"><span>TETON Sports LEEF Ultralight Mummy Sle</span></span><span class="qhit" title="TETON Sports -35 Degree and 0 Degree Sleeping Bag. Warm and Comfortable Camping Sleeping Bag, TETON Tough Canvas Shell for Camping, Hunting, and Cold Weather"><img src="https://m.media-amazon.com/images/I/71hR1SZY0fL._AC_SY450_.jpg" alt="" loading="lazy"><span>TETON Sports -35 Degree and 0 Degree S</span></span><span class="qhit" title="Desert &amp; Fox Cotton Flannel Sleeping Bags with Pillow, 4 Season Warm &amp; Cold Weather Envelope Compression Sack, Lightweight &amp; Portable Backpacking Sleeping Bag for Outdoor Camping, Hiking, Traveling"><img src="https://m.media-amazon.com/images/I/61ynRmHVLtL._AC_SX679_.jpg" alt="" loading="lazy"><span>Desert &amp; Fox Cotton Flannel Sleeping B</span></span></td></tr>
+<tr><td><b>sneakers</b></td><td><span class="flag ok">Good</span><div class="qnote">5 of top 5 are footwear</div></td><td class="qhits"><span class="qhit" title="ASICS Women&#x27;s Gel-Contend 8 Running Shoes"><img src="https://m.media-amazon.com/images/I/613LGaIjQAL._AC_SY500_.jpg" alt="" loading="lazy"><span>ASICS Women&#x27;s Gel-Contend 8 Running Sh</span></span><span class="qhit" title="Brooks Women&#x27;s Revel 5 Running Shoe"><img src="https://m.media-amazon.com/images/I/81IlHytajCL._AC_SY575_.jpg" alt="" loading="lazy"><span>Brooks Women&#x27;s Revel 5 Running Shoe</span></span><span class="qhit" title="ASICS Nimbus 25 Lite-Show Road Running Shoe for Woman Blue Yellow"><img src="https://m.media-amazon.com/images/I/61emHCWBPbL._AC_SY695_.jpg" alt="" loading="lazy"><span>ASICS Nimbus 25 Lite-Show Road Running</span></span></td></tr>
+<tr><td><b>socks</b></td><td><span class="flag ok">Good</span><div class="qnote">5 of top 5 are socks</div></td><td class="qhits"><span class="qhit" title="Nike Everyday Plus Cushioned Training Crew Socks (6 Pack)"><img src="https://m.media-amazon.com/images/I/81NwnwzcrKL._AC_SX679_.jpg" alt="" loading="lazy"><span>Nike Everyday Plus Cushioned Training </span></span><span class="qhit" title="Pair of Thieves Men’s Athletic Performance Socks - 6 Pack Cushioned Low Cut and Crew Socks for Men"><img src="https://m.media-amazon.com/images/I/81kQGxSMrRL._AC_UX679_.jpg" alt="" loading="lazy"><span>Pair of Thieves Men’s Athletic Perform</span></span><span class="qhit" title="Dickies Men&#x27;s All Purpose Cushion Crew Socks (6/12 Packs)"><img src="https://m.media-amazon.com/images/I/91ChmTMh2DL._AC_UX679_.jpg" alt="" loading="lazy"><span>Dickies Men&#x27;s All Purpose Cushion Crew</span></span></td></tr>
+<tr><td><b>t-shirt</b></td><td><span class="flag ok">Good</span><div class="qnote">4 of top 5 are tops</div></td><td class="qhits"><span class="qhit" title="Fruit of the Loom Men&#x27;s Eversoft Cotton Stay Tucked Crew T-Shirt"><img src="https://m.media-amazon.com/images/I/51OijIFUO9L._AC_UY879_.jpg" alt="" loading="lazy"><span>Fruit of the Loom Men&#x27;s Eversoft Cotto</span></span><span class="qhit" title="Gildan Men&#x27;s Heavy Cotton T-Shirt, Style G5000, 2-Pack"><img src="https://m.media-amazon.com/images/I/61lDolpjTRL._AC_SX679_.jpg" alt="" loading="lazy"><span>Gildan Men&#x27;s Heavy Cotton T-Shirt, Sty</span></span><span class="qhit" title="Hanes Men&#x27;s Essentials T-shirt Pack, Crewneck Cotton T-shirts for Men, 4 Or 6 Pack Available"><img src="https://m.media-amazon.com/images/I/612OCczgZHL._AC_SX679_.jpg" alt="" loading="lazy"><span>Hanes Men&#x27;s Essentials T-shirt Pack, C</span></span></td></tr>
+<tr><td><b>tent</b></td><td><span class="flag ok">Good</span><div class="qnote">5 of top 5 are tent</div></td><td class="qhits"><span class="qhit" title="Coleman 6-Person WeatherMaster Tent"><img src="https://m.media-amazon.com/images/I/71FwdoPn2bL._AC_SX679_.jpg" alt="" loading="lazy"><span>Coleman 6-Person WeatherMaster Tent</span></span><span class="qhit" title="AsterOutdoor 6 Person Cabin Tent Instant Setup Tent, Waterproof Family Camping Tent, 60 Sec. Easy Set Up for Car Camping Hiking Outdoor Adventure, Large Space &amp; Extra Tall"><img src="https://m.media-amazon.com/images/I/71S1hE8DzgL._AC_SX679_.jpg" alt="" loading="lazy"><span>AsterOutdoor 6 Person Cabin Tent Insta</span></span><span class="qhit" title="Ozark Trail 16x16-Feet 12-Person 3 Room Instant Cabin Tent with Pre-Attached Poles"><img src="https://m.media-amazon.com/images/I/51yIOh0WP5L._AC_.jpg" alt="" loading="lazy"><span>Ozark Trail 16x16-Feet 12-Person 3 Roo</span></span></td></tr>
+<tr><td><b>trekking</b></td><td><span class="flag ok">Good</span><div class="qnote">3 of top 5 mention “trekking”</div></td><td class="qhits"><span class="qhit" title="Topwolve Hiking Boots Men&#x27;s Women&#x27;s Waterproof Walking Shoes Low Rise Trekking Climbing Shoes Outdoor Backpacking Camping Trails Shoes"><img src="https://m.media-amazon.com/images/I/71hvEmyUs4L._AC_SY500_.jpg" alt="" loading="lazy"><span>Topwolve Hiking Boots Men&#x27;s Women&#x27;s Wa</span></span><span class="qhit" title="Columbia Men&#x27;s Peakfreak Venture Waterproof Wide Hiking Shoe"><img src="https://m.media-amazon.com/images/I/513JMWlZgtL._AC_SX395_.jpg" alt="" loading="lazy"><span>Columbia Men&#x27;s Peakfreak Venture Water</span></span><span class="qhit" title="Grisport Unisex&#x27;s Saracen High Rise Hiking Boots"><img src="https://m.media-amazon.com/images/I/61C7DXnJKbL._AC_SY695_.jpg" alt="" loading="lazy"><span>Grisport Unisex&#x27;s Saracen High Rise Hi</span></span></td></tr>
+<tr><td><b>water bottle</b></td><td><span class="flag ok">Good</span><div class="qnote">5 of top 5 are water bottle</div></td><td class="qhits"><span class="qhit" title="Opard 30oz Sports Water Bottle with Leak Proof Flip Top Lid BPA Free Tritan Reusable Plastic for Gym and Outdoor"><img src="https://m.media-amazon.com/images/I/51V1y8RCdIL._AC_SX679_.jpg" alt="" loading="lazy"><span>Opard 30oz Sports Water Bottle with Le</span></span><span class="qhit" title="BOTTLE BOTTLE Insulated Water Bottle 24oz with Straw Lid and Handle for Sports Travel Gym Stainless Steel Water Bottles Double-Wall Vacuum Metal Thermos Bottles Leak Proof BPA-Free (Light Gray)"><img src="https://m.media-amazon.com/images/I/513ZpmPfuBL._AC_SX679_.jpg" alt="" loading="lazy"><span>BOTTLE BOTTLE Insulated Water Bottle 2</span></span><span class="qhit" title="Vmini Water Bottle with Straw, Wide Rotating Handle Straw Lid, Wide Mouth Vacuum Insulated Stainless Steel Water Bottle, Gradient Pink+Pink, 32 oz"><img src="https://m.media-amazon.com/images/I/71wOBU8k8XL._AC_SX679_.jpg" alt="" loading="lazy"><span>Vmini Water Bottle with Straw, Wide Ro</span></span></td></tr>
+<tr><td><b>waterproof hiking</b></td><td><span class="flag ok">Good</span><div class="qnote">4 of top 5 mention “waterproof hiking”</div></td><td class="qhits"><span class="qhit" title="HUMTTO Men&#x27;s All-Terrain Waterproof Hiking Boots Lightweight Breathable Outdoor Ankle Boots Trekking Hiking Shoes"><img src="https://m.media-amazon.com/images/I/71b1BdUg18L._AC_UY695_.jpg" alt="" loading="lazy"><span>HUMTTO Men&#x27;s All-Terrain Waterproof Hi</span></span><span class="qhit" title="NORTIV 8 Women&#x27;s Waterproof Hiking Boots Outdoor Trekking Camping Trail Hiking Boots"><img src="https://m.media-amazon.com/images/I/81XlZdOTYjL._AC_SY695_.jpg" alt="" loading="lazy"><span>NORTIV 8 Women&#x27;s Waterproof Hiking Boo</span></span><span class="qhit" title="NORTIV 8 Men&#x27;s Waterproof Hiking Boots Outdoor Mid Walking Boots Mens Trekking Hiking Footwear Backpacking Mountaineering Shoes JS19004M"><img src="https://m.media-amazon.com/images/I/81FY6YDwBmL._AC_SY695_.jpg" alt="" loading="lazy"><span>NORTIV 8 Men&#x27;s Waterproof Hiking Boots</span></span></td></tr>
+    </table></div>
+    <a class="dl" href="search_qa.csv" download>Download search QA as CSV ↓</a>
+  </section>
+
+  <section class="block method" id="method">
+    <h2>How it works</h2>
+    <ul>
+      <li><b>Your catalog</b> was uploaded to BehaviorGPT, a model trained on long sequences of what shoppers view, add to cart and buy.</li>
+      <li><b>The market</b> is BehaviorGPT’s reference retail catalog, which carries sales history. For each of your products we take its 10 closest market products, plus what shoppers go on to want after viewing them.</li>
+      <li><b>Each product is described by what it is</b> (“women’s running shoes”), because branded names mislead search. Where the category is vague, your own catalog is searched to find the most specific kind each product ranks for.</li>
+      <li><b>Gaps</b> are kinds of products among your market, or among what its shoppers look at next, that you carry nothing of.</li>
+      <li><b>Keywords</b> come from a shopper vocabulary: words and phrases that at least three brands use in their titles across your market. A product gets a suggestion when most of its market neighbours use the word, or when its own description uses it but its name and tags don’t, and searching your catalog for it (with the product kind, e.g. “breathable running shoes”) doesn’t return the product in the top 20.</li>
+      <li>The market is a general US retail catalog, so niche or local assortments will match it less closely.</li>
+    </ul>
+  </section>
+</main>
+<footer class="wrap">Generated by <a href="https://github.com/Jenspalmborg/catalog-xray">catalog-xray</a> with <a href="https://github.com/Unbox-AI/behaviorgpt">BehaviorGPT</a>.</footer>
+<div id="tip"></div>
+<script>
+  // Opened from the web app: offer the way back to the scan page.
+  if (location.pathname.startsWith("/reports/")) document.getElementById("back").hidden = false;
+  const tip = document.getElementById("tip");
+  document.querySelectorAll("[data-tip]").forEach(el => {
+    el.addEventListener("mousemove", ev => { tip.textContent = el.dataset.tip; tip.style.opacity = 1;
+      tip.style.left = Math.min(innerWidth - 240, ev.clientX + 12) + "px"; tip.style.top = (ev.clientY + 14) + "px"; });
+    el.addEventListener("mouseleave", () => tip.style.opacity = 0);
+  });
+  const q = document.getElementById("kwq");
+  q && q.addEventListener("input", () => {
+    const v = q.value.trim().toLowerCase();
+    document.querySelectorAll("#kwt tr[data-q]").forEach(tr => tr.hidden = v && !tr.dataset.q.includes(v));
+  });
+</script>
+</body>
+</html>
