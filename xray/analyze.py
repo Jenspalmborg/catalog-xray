@@ -126,7 +126,23 @@ def stem(w: str) -> str:
     return w[: max(4, len(w) - 3)]
 
 
-TYPE_STOP = {"fit", "style", "waist", "sleeve", "neck", "cut", "leg", "look", "wear", "everyday"}
+TYPE_STOP = {
+    "self",
+    "album",
+    "photo",
+    "book",
+    "books",
+    "fit",
+    "style",
+    "waist",
+    "sleeve",
+    "neck",
+    "cut",
+    "leg",
+    "look",
+    "wear",
+    "everyday",
+}
 
 
 def types_of(noun: str, names: list[str], n: int = 4) -> list[str]:
@@ -141,7 +157,9 @@ def types_of(noun: str, names: list[str], n: int = 4) -> list[str]:
         ws = [w for w in ws if w not in STOP and stem(w) not in kind_words and len(w) > 2]
         for g in set(ws) | {f"{a} {b}" for a, b in zip(ws, ws[1:])}:
             # A type describes; it isn't itself a product noun, and has no noun inside it either.
-            if g in TYPE_STOP or any(pat.fullmatch(w) for w in g.split() for _, pat in PATTERNS):
+            if any(w in TYPE_STOP for w in g.split()) or any(
+                pat.fullmatch(w) for w in g.split() for _, pat in PATTERNS
+            ):
                 continue
             brands[g].add(brand)
     ranked = sorted(brands, key=lambda g: (-len(brands[g]), -len(g.split()), g))
@@ -439,9 +457,11 @@ def run(
             n = sum(1 for r in m.refs if vocab_rx[w].search(r["name"]))
             if n >= 3:
                 near[w] = n
+
         def other_kind(w: str) -> bool:
             """A word that names a different kind of product isn't a keyword for this one."""
             return any(pat.fullmatch(w) and family(ph) != family(m.noun or "") for ph, pat in PATTERNS)
+
         cands = {
             w: f"used by {n} similar market products"
             for w, n in near.most_common(8)
@@ -492,7 +512,9 @@ def run(
         if k:
             accept = PARENTS.get(k, set()) | {family(k)}
             relevant = [x for x in own_hits if fam_of.get(x["id"]) in accept]
-            weak = len(relevant) < 3
+            # Weak = the search misses products you actually have; a store with one print can't show three.
+            have = sum(1 for f in fam_of.values() if f in accept)
+            weak = len(relevant) < min(3, have)
             note = f"{len(relevant)} of top 5 are {family(k) if family(k) != head(k) else k}"
         else:
             # No product noun in the query: judge by whether the top results carry the word.

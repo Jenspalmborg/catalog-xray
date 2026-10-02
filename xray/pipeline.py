@@ -84,8 +84,10 @@ def scan(
         meta.write_text(json.dumps({"source": source, "url": scraper.base, "count": len(products)}))
         log(f"{len(products)} products via {SOURCES[source]}")
     products = [p for p in products if catalog.is_product(p)]
-    if len(products) < 20:
+    if len(products) < 5:
         raise ScanError(f"Only {len(products)} products found on {scraper.domain}; too few to analyse.")
+    if len(products) < 20:
+        log(f"Only {len(products)} products: a small range, so treat the results as indicative.")
 
     return _finish(api, products, scraper.domain, source, out, queries, step, log, t0)
 

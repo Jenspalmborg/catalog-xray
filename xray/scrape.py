@@ -178,7 +178,7 @@ class Scraper:
             same_site = [
                 u for u in dict.fromkeys(all_urls) if urlparse(u).netloc == urlparse(self.base).netloc
             ]
-            product_urls = sorted(same_site, key=lambda u: -urlparse(u).path.rstrip("/").count("/"))
+            product_urls = page_order(same_site)
         return list(dict.fromkeys(product_urls))[: limit * 2]
 
     def _robots_lines(self) -> list[str]:
@@ -200,8 +200,7 @@ class Scraper:
             except Blocked:
                 continue
             if r.status_code == 200:
-                p = parse_product_page(r.text, u)
-                if p:
+                for p in parse_products(r.text, u):
                     p.category = p.category or category_from_path(u)
                     out.append(p)
             if n % 25 == 0:
@@ -263,8 +262,8 @@ class Scraper:
         self.log(f"  Common Crawl: {len(records)} archived pages (no requests to the store)")
         if not records:
             return []
-        # Deepest pages first: products usually sit below their categories.
-        todo = sorted(records.items(), key=lambda kv: -urlparse(kv[0]).path.rstrip("/").count("/"))
+        order = page_order(list(records))
+        todo = [(u, records[u]) for u in order]
         out, seen_ids = [], set()
         for n, (url, rec) in enumerate(todo[: max(limit * 2, 200)], 1):
             if len(out) >= limit:
@@ -278,11 +277,11 @@ class Scraper:
                 page = gzip.decompress(w.content).decode("utf-8", "replace").split("\r\n\r\n", 2)[-1]
             except (httpx.HTTPError, OSError, ValueError):
                 continue
-            p = parse_product_page(page, url)
-            if p and p.id not in seen_ids:
-                p.category = p.category or category_from_path(url)
-                seen_ids.add(p.id)
-                out.append(p)
+            for p in parse_products(page, url):
+                if p.id not in seen_ids:
+                    p.category = p.category or category_from_path(url)
+                    seen_ids.add(p.id)
+                    out.append(p)
             if n % 50 == 0:
                 self.log(f"  archived pages {n}: {len(out)} products")
             time.sleep(0.1)  # be gentle with Common Crawl too
@@ -317,7 +316,13 @@ class Scraper:
 
 
 def parse_product_page(page: str, url: str) -> Product | None:
-    """Read the schema.org Product from a page's JSON-LD, plus meta keywords."""
+    products = parse_products(page, url)
+    return products[0] if products else None
+
+
+def parse_products(page: str, url: str) -> list[Product]:
+    """Every schema.org Product in a page's JSON-LD (a page can offer several), plus meta keywords."""
+    found: list[Product] = []
     for block in re.findall(r"<script[^>]+application/ld\+json[^>]*>(.*?)</script>", page, re.S | re.I):
         try:
             data = json.loads(block.strip())
@@ -340,19 +345,22 @@ def parse_product_page(page: str, url: str) -> Product | None:
                 image = image.get("url")
             meta_kw = re.search(r'<meta[^>]+name=["\']keywords["\'][^>]+content=["\']([^"\']+)', page, re.I)
             kw = node.get("keywords") or (meta_kw.group(1) if meta_kw else "")
-            return Product(
-                id=str(node.get("sku") or node.get("productID") or node.get("mpn") or url),
-                name=html.unescape(str(node.get("name", ""))).strip(),
-                url=url,
-                brand=(brand.get("name") if isinstance(brand, dict) else brand) or None,
-                category=node.get("category") if isinstance(node.get("category"), str) else None,
-                tags=clean_tags(kw.split(",") if isinstance(kw, str) else kw),
-                price=str(offer.get("price")) if offer.get("price") is not None else None,
-                currency=offer.get("priceCurrency"),
-                image=urljoin(url, image) if isinstance(image, str) else None,
-                description=strip_html(str(node.get("description", "")))[:600],
+            name = html.unescape(str(node.get("name", ""))).strip()
+            found.append(
+                Product(
+                    id=str(node.get("sku") or node.get("productID") or node.get("mpn") or f"{url}#{name}"),
+                    name=name,
+                    url=url,
+                    brand=(brand.get("name") if isinstance(brand, dict) else brand) or None,
+                    category=node.get("category") if isinstance(node.get("category"), str) else None,
+                    tags=clean_tags(kw.split(",") if isinstance(kw, str) else kw),
+                    price=str(offer.get("price")) if offer.get("price") is not None else None,
+                    currency=offer.get("priceCurrency"),
+                    image=urljoin(url, image) if isinstance(image, str) else None,
+                    description=strip_html(str(node.get("description", "")))[:600],
+                )
             )
-    return None
+    return [p for p in dedupe(found) if p.name]
 
 
 def parse_feed(content: bytes, base: str) -> list[Product]:
@@ -398,6 +406,50 @@ def parse_feed(content: bytes, base: str) -> list[Product]:
             )
         )
     return out
+
+
+LOCALE = re.compile(r"^/([a-z]{2})(?:[-_]([a-z]{2}))?(?=/|$)", re.I)
+
+
+INFO_PAGES = re.compile(
+    r"/(help|hjalp|hjelp|hilfe|aide|aiuto|ayuda|support|faq|about|about-us|terms|privacy|policy|"
+    r"legal|cookies?|contact|careers?|jobs|press|blog|news|accessibility)\b",
+    re.I,
+)
+
+
+def page_order(urls: list[str]) -> list[str]:
+    """Which pages to read first when hunting for products: one language version of each page,
+    help and legal pages last, and otherwise the deepest pages first (products usually sit below
+    their categories)."""
+    urls = one_language(urls)
+    return sorted(
+        urls,
+        key=lambda u: (bool(INFO_PAGES.search(urlparse(u).path)), -urlparse(u).path.rstrip("/").count("/")),
+    )
+
+
+def one_language(urls: list[str]) -> list[str]:
+    """Sites in many languages repeat each page per locale (/sv-se/x, /de-de/x, /en-us/x).
+    Keep one version of each page, preferring English, so the page budget covers more products."""
+
+    def rank(u: str) -> int:
+        m = LOCALE.match(urlparse(u).path)
+        if not m:
+            return 1  # no locale: usually the default (often English)
+        lang, region = m.group(1).lower(), (m.group(2) or "").lower()
+        return 0 if (lang, region) == ("en", "us") else 2 if lang == "en" else 3
+
+    # Translated slugs (/sv-se/fotoprints vs /en-us/photoprints) don't line up, so when the site
+    # has English pages, drop the other languages altogether.
+    if any(rank(u) in (0, 2) for u in urls):
+        urls = [u for u in urls if rank(u) <= 2]
+    best: dict[str, str] = {}
+    for u in urls:
+        key = LOCALE.sub("", urlparse(u).path).rstrip("/") or "/"
+        if key not in best or rank(u) < rank(best[key]):
+            best[key] = u
+    return list(best.values())
 
 
 def category_from_path(url: str) -> str | None:

@@ -53,7 +53,11 @@ dog food, cat food, dog bed, cat litter, leash, collar, dog toy, cat toy, pet be
 stroller, car seat, diapers, baby bottle, baby carrier, crib,
 notebook, journal, pen, pencil, planner, stapler, printer paper, sticky notes, backpack, pencil case,
 guitar, ukulele, keyboard piano, drum, microphone, headphones,
-paint, paint brushes, sketchbook, yarn, sewing machine, glue
+paint, paint brushes, sketchbook, yarn, sewing machine, glue,
+photo book, photobook, wedding photo book, wedding album, baby book, recipe book, yearbook, coffee table book,
+art book, travel book, photo album, scrapbook, memory book, guest book, photo prints, prints, canvas print, poster,
+wall art, calendar, wall calendar, desk calendar, greeting card, thank you card, invitation card, christmas card,
+photo gifts, photo printer, instant camera
 """
 
 PHRASES = sorted({p.strip() for p in NOUNS.replace("\n", " ").split(",") if p.strip()}, key=lambda p: -len(p))
@@ -134,6 +138,7 @@ def singular(w: str) -> str:
 
 # Different words, same kind of product.
 SYNONYMS = {
+    "photobook": "book",
     "moisturizer": "cream",
     "lip pencil": "lip liner",
     "moisturiser": "cream",
@@ -175,6 +180,11 @@ FAMILIES = {
     "bags": "backpack bag tote wallet suitcase luggage",
     "audio": "headphone earbud speaker",
     "bedding": "pillow blanket duvet comforter sheet mattress",
+    "photo books": "photobook album scrapbook yearbook|photo book|baby book|recipe book|coffee table book|art book|"
+    "travel book|memory book|guest book|wedding album",
+    "prints": "print poster canvas|wall art|photo print",
+    "cards": "|greeting card|thank you card|invitation card|christmas card",
+    "calendars": "calendar",
     "makeup tools": "sponge|makeup brush|brush set|makeup sponge|beauty blender|makeup bag|cosmetic bag",
     "hair tools": "comb|hair brush|hair dryer|hair straightener|flat iron|curling iron",
     "tanning": "|self tan|tanning mist|tanning drops|tan remover",
@@ -187,6 +197,7 @@ FAMILIES = {
 }
 # Vague kinds that should give way to a specific one when the text names it.
 PARENTS = {
+    "photo gifts": {"photo books", "prints", "cards", "calendars"},
     "makeup": {"eyes", "lips", "face", "makeup tools", "skincare", "tanning"},
     "cosmetics": {"eyes", "lips", "face", "makeup tools", "skincare", "tanning"},
     "brush": {"makeup tools", "hair tools"},
@@ -334,6 +345,15 @@ DEPARTMENTS = {
         "controller",
     },
     "office": {"notebook", "journal", "pen", "pencil", "planner", "stapler", "paper"},
+    "photo & print": {
+        "photo books",
+        "prints",
+        "cards",
+        "calendars",
+        "frame",
+        "photo printer",
+        "instant camera",
+    },
 }
 
 
